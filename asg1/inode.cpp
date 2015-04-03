@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <algorithm>  // std::reverse
 
 #include "debug.h"
 #include "inode.h"
