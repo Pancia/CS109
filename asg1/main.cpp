@@ -73,13 +73,12 @@ int main(int argc, char** argv) {
             // function.  Complain or call it.
             wordvec words = split(line, " \t");
             string cmd = words.at(0);
+            // If its a comment, ignore it
+            if(!string(1, cmd[0]).compare("#"))
+                continue;
             vector<string> args
                 = vector<string>(words.begin() + 1, words.end());
             command_fn fn = cmdmap.at(words.at(0));
-            // If its a comment, ignore it
-            if(!string("#").compare(string(1, cmd[0]))) {
-                continue;
-            }
             fn(state, args);
          }catch(yshell_exn& exn) {
             // If there is a problem discovered in any function, an
