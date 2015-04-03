@@ -47,6 +47,9 @@ ${DEPFILE} : ${MKFILE}
 again :
 	${GMAKE} spotless dep ci all lis
 
+submit :
+	submit cmps109-wm.s15 asg1 ${ALLSOURCES}
+
 ifeq (${NEEDINCL}, )
 include ${DEPFILE}
 endif
