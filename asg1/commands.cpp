@@ -41,8 +41,10 @@ void fn_cd(inode_state& state, const wordvec& args){
        throw yshell_exn("cd: Expecting only one path arg");
    }
    state.cd(args.size() > 0
-           ? split(args[0], "/")
-           : vector<string>{"/"});
+           ? (args[0] == "/"
+               ? wordvec{"/"}
+               : split(args[0], "/"))
+           : wordvec{"/"});
 }
 
 void fn_echo(inode_state& state, const wordvec& args){

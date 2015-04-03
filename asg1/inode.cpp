@@ -228,12 +228,14 @@ void inode_state::ls(const wordvec& args, bool recursive) {
     DEBUGF('i', args);
     inode_ptr old_cwd = cwd;
 
-    wordvec arg_paths = (args.size() == 0 ? wordvec{"/"} : args);
+    wordvec arg_paths = (args.size() == 0 ? wordvec{"."} : args);
 
     for (auto arg_path : arg_paths) {
         inode_ptr tmp_cwd = cwd;
         wordvec dir_stack;
-        wordvec path = split(arg_path, "/");
+        wordvec path = (arg_path == "/"
+                ? wordvec{"/"}
+                : split(arg_path, "/"));
         if (path.size() > 0) {
             // cd to all but the last in path
             this->cd(wordvec(path.begin(), path.end()-1));
@@ -337,7 +339,7 @@ string inode_state::get_wd() {
         auto parent = directory_ptr_of(cwd->contents)
             ->dirents.find("..");
         cwd = parent->second;
-        // Find the name of the directory we were in
+        // Get the name of the directory we were in
         dir_map cur_dir = directory_ptr_of(cwd->contents)->dirents;
         for (auto cur_dir_itor = cur_dir.begin();
                 cur_dir_itor != cur_dir.end();
