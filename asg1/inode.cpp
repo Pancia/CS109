@@ -206,11 +206,9 @@ void inode_state::cd(const wordvec& args) {
         directory_ptr dir = directory_ptr_of(cwd->contents);
         auto maybe_dir = dir->dirents.find(args[0]);
         if (maybe_dir == dir->dirents.end()) {
-            cwd = old_cwd;
             throw yshell_exn("cd: Could not find directory: "
                     + args[0]);
         } else if (maybe_dir->second->type != DIR_INODE) {
-            cwd = old_cwd;
             throw yshell_exn("cd: " + args[0] + " is not a directory");
         } else {
             cwd = maybe_dir->second;
