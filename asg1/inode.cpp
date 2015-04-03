@@ -62,10 +62,6 @@ ostream& operator<<(ostream& out, const plain_file& file) {
         << ", data = " << file.data
         << "]";
     return out;
-    //  private:
-    //      wordvec data;
-    //  public:
-    //      size_t size() const override;
 }
 
 /*
@@ -73,8 +69,7 @@ ostream& operator<<(ostream& out, const plain_file& file) {
  * number of characters in it
  */
 size_t plain_file::size() const {
-    size_t size {0};
-    size += data.size();
+    size_t size {data.size()};
     DEBUGF('i', "size = " << size);
     return size;
 }
