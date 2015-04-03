@@ -180,15 +180,16 @@ void inode_state::cat(const wordvec& args) {
         dir_map this_dir = directory_ptr_of(cwd->contents)->dirents;
         auto maybe_file = this_dir.find(filename);
         if (maybe_file == this_dir.end()) {
+            cwd = old_cwd;
             throw yshell_exn("cat: " + filename + ": File not found");
         } else if (maybe_file->second->type == DIR_INODE) {
+            cwd = old_cwd;
             throw yshell_exn("cat: " + filename + ": Is a directory");
         } else {
             auto file
                 = plain_file_ptr_of(maybe_file->second->contents);
             cout << file->readfile() << endl;
         }
-
         cwd = tmp_cwd;
     }
 
@@ -205,9 +206,11 @@ void inode_state::cd(const wordvec& args) {
         directory_ptr dir = directory_ptr_of(cwd->contents);
         auto maybe_dir = dir->dirents.find(args[0]);
         if (maybe_dir == dir->dirents.end()) {
+            cwd = old_cwd;
             throw yshell_exn("cd: Could not find directory: "
                     + args[0]);
         } else if (maybe_dir->second->type != DIR_INODE) {
+            cwd = old_cwd;
             throw yshell_exn("cd: " + args[0] + " is not a directory");
         } else {
             cwd = maybe_dir->second;
@@ -290,6 +293,7 @@ void inode_state::make(const wordvec& args) {
     // If found, make sure is not a directory
     if (maybe_inode != cwd_dir.end()) {
         if (maybe_inode->second->type == DIR_INODE) {
+            cwd = old_cwd;
             throw yshell_exn("make: " + filename
                     + ": File already exists");
         }
@@ -376,6 +380,7 @@ void inode_state::rm(const wordvec& args, bool recursive) {
         auto cur_dir = directory_ptr_of(cwd->contents);
         auto maybe_file = cur_dir->dirents.find(filename);
         if (maybe_file == cur_dir->dirents.end()){
+            cwd = old_cwd;
             throw yshell_exn("rm: Invalid path: " + filename);
         }
         if (recursive && maybe_file->second->type == DIR_INODE
