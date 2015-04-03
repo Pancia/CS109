@@ -233,10 +233,10 @@ void inode_state::ls(const wordvec& args, bool recursive) {
     for (auto arg_path : arg_paths) {
         inode_ptr tmp_cwd = cwd;
         wordvec dir_stack;
-        wordvec path = (arg_path == "/"
-                ? wordvec{"/"}
-                : split(arg_path, "/"));
-        if (path.size() > 0) {
+        wordvec path = split(arg_path, "/");
+        if (arg_path == "/") {
+            this->cd(wordvec{"/"});
+        } else if (path.size() > 0) {
             // cd to all but the last in path
             this->cd(wordvec(path.begin(), path.end()-1));
             // if path.back() is a dir => cd
