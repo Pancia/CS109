@@ -37,7 +37,7 @@ spotless : clean
 	- rm ${EXECBIN} ${LISTING} ${LISTING:.ps=.pdf}
 
 dep : ${CPPSOURCE} ${CPPHEADER}
-	@ echo "# ${DEPFILE} created `LC_TIME=C date`" >${DEPFILE}
+	#@ echo "# ${DEPFILE} created `LC_TIME=C date`" >${DEPFILE}
 	${MAKEDEPCPP} ${CPPSOURCE} >>${DEPFILE}
 
 ${DEPFILE} : ${MKFILE}
