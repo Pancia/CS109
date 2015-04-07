@@ -291,6 +291,8 @@ void inode_state::make(const wordvec& args) {
             cwd = old_cwd;
             throw yshell_exn("make: " + filename
                     + ": File already exists");
+        } else {
+            i_new_file = maybe_inode->second;
         }
     } else { // otherwise, replace contents
         i_new_file = make_shared<inode>(inode{PLAIN_INODE});
