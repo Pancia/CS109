@@ -131,6 +131,13 @@ void directory::remove(const string& filename) {
     }
 }
 
+directory::~directory() {
+    for (auto& file_dir : dirents) {
+        delete file_dir.second.get();
+        dirents.clear();
+    }
+}
+
 //====INODE_STATE====
 inode_state::inode_state() {
     root = make_shared<inode>(inode(DIR_INODE));
@@ -140,6 +147,10 @@ inode_state::inode_state() {
     cwd = root;
     DEBUGF('i', "root = " << root->contents << ", cwd = " << cwd
             << ", prompt = \"" << prompt << "\"");
+}
+
+inode_state::~inode_state() {
+    delete root.get();
 }
 
 ostream& operator<<(ostream& out, const inode_state& state) {
@@ -365,7 +376,7 @@ void inode_state::rm(const wordvec& args, bool recursive) {
         throw yshell_exn("rm: Please specify a path");
     } else if (args.size() != 1) {
         throw yshell_exn("rm: Can only delete 1 file/dir at a time");
-    } else if (args[0] == "/"){
+    } else if (args[0] == "/") {
         throw yshell_exn("rm: Cannot remove root");
     } else {
         wordvec path = split(args[0], "/");

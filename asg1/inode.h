@@ -44,6 +44,7 @@ class inode_state {
         string prompt {"%"};
     public:
         inode_state();
+        ~inode_state();
         void set_prompt(string new_prompt);
         string get_prompt();
         string get_wd();
@@ -154,6 +155,7 @@ class directory: public file_base {
     private:
         dir_map dirents;
     public:
+        ~directory();
         size_t size() const override;
         void remove(const string& filename);
         inode& mkdir(inode_ptr inode, const string& dirname);
