@@ -57,7 +57,10 @@ void fn_rmr    (inode_state& state, const wordvec& words);
 //    by any of the functions.
 //
 int exit_status_message();
-class ysh_exit_exn: public exception {};
+class ysh_exit_exn: public exception {
+    public:
+        explicit ysh_exit_exn(int exit_status);
+};
 
 #endif
 

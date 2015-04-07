@@ -2,6 +2,10 @@
 #include "debug.h"
 #include "util.h"
 
+ysh_exit_exn::ysh_exit_exn(int exit_status) {
+    exit_status::set(exit_status);
+}
+
 commands::commands(): map({
    {"cat"   , fn_cat   },
    {"cd"    , fn_cd    },
@@ -56,8 +60,7 @@ void fn_echo(inode_state& state, const wordvec& args){
 void fn_exit(inode_state& state, const wordvec& args){
    DEBUGF('c', state);
    DEBUGF('c', args);
-   exit_status::set(stoi(args[0]));
-   exit(exit_status_message());
+   throw ysh_exit_exn(stoi(args[0]));
 }
 
 void fn_ls(inode_state& state, const wordvec& args){
