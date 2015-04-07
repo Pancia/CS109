@@ -49,7 +49,7 @@ class debugflags {
 #define DEBUGF(FLAG,CODE) { \
            if (debugflags::getflag (FLAG)) { \
               debugflags::where (FLAG, __FILE__, __LINE__, __func__); \
-              cerr << CODE << endl; \
+              cerr << "    " << CODE << endl; \
            } \
         }
 #define DEBUGS(FLAG,STMT) { \
