@@ -16,23 +16,23 @@ using namespace std;
 //    Options analysis:  The only option is -Dflags.
 //
 void scan_options(int argc, char** argv) {
-   opterr = 0;
-   for(;;) {
-      int option = getopt(argc, argv, "@:");
-      if(option == EOF) break;
-      switch(option) {
-         case '@':
-            debugflags::setflags(optarg);
-            break;
-         default:
-            complain() << "-" <<(char) option << ": invalid option"
-                       << endl;
-            break;
-      }
-   }
-   if(optind < argc) {
-      complain() << "operands not permitted" << endl;
-   }
+    opterr = 0;
+    for (;;) {
+        int option = getopt(argc, argv, "@:");
+        if (option == EOF) break;
+        switch(option) {
+            case '@':
+                debugflags::setflags(optarg);
+                break;
+            default:
+                complain() << "-" <<(char) option << ": invalid option"
+                    << endl;
+                break;
+        }
+    }
+    if (optind < argc) {
+        complain() << "operands not permitted" << endl;
+    }
 }
 
 
@@ -50,44 +50,47 @@ int main(int argc, char** argv) {
    commands cmdmap;
    inode_state state;
    try {
-      for(;;) {
-         try {
-            // Read a line, break at EOF, and echo print the prompt
-            // if one is needed.
-            cout << state.get_prompt();
-            string line;
-            getline(cin, line);
-            if(cin.eof()) {
-               if(need_echo) cout << "^D";
-               cout << endl;
-               DEBUGF('y', "EOF");
-               break;
-            }
-            if(need_echo)
-                cout << line << endl;
-            // Ignore empty lines, causes issues later on
-            if(!line.compare(""))
-                continue;
+       for (;;) {
+           try {
+               // Read a line, break at EOF, and echo print the prompt
+               // if one is needed.
+               cout << state.get_prompt();
+               string line;
+               getline(cin, line);
+               if (cin.eof()) {
+                   if (need_echo)
+                       cout << "^D";
+                   cout << endl;
+                   DEBUGF('y', "EOF");
+                   break;
+               }
+               if (need_echo)
+                   cout << line << endl;
+               // Ignore empty lines, causes issues later on
+               if (!line.compare(""))
+                   continue;
 
-            // Split the line into words and lookup the appropriate
-            // function.  Complain or call it.
-            wordvec words = split(line, " \t");
-            string cmd = words.at(0);
-            // If its a comment, ignore it
-            if(!string(1, cmd[0]).compare("#"))
-                continue;
-            vector<string> args
-                = vector<string>(words.begin() + 1, words.end());
-            command_fn fn = cmdmap.at(words.at(0));
-            fn(state, args);
-         }catch(yshell_exn& exn) {
-            // If there is a problem discovered in any function, an
-            // exn is thrown and printed here.
-            complain() << exn.what() << endl;
-         }
-      }
-   } catch(ysh_exit_exn& ) {
-      // This catch intentionally left blank.
+               // Split the line into words and lookup the appropriate
+               // function.  Complain or call it.
+               wordvec words = split(line, " \t");
+               string cmd = words.at(0);
+               // If it's a comment, ignore it
+               if (!string(1, cmd[0]).compare("#"))
+                   continue;
+               vector<string> args
+                   = vector<string>(words.begin() + 1, words.end());
+               command_fn fn = cmdmap.at(words.at(0));
+               fn(state, args);
+           } catch(yshell_exn& exn) {
+               // If there is a problem discovered in any function, an
+               // exn is thrown and printed here.
+               DEBUGF('x', "EXITING");
+               complain() << exn.what() << endl;
+           }
+       }
+   } catch(ysh_exit_exn& _) {
+       // This catch intentionally left blank.
+       DEBUGF('x', "EXITING");
    }
 
    return exit_status_message();
