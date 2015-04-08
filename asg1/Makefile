@@ -19,6 +19,7 @@ all : ${EXECBIN}
 
 ${EXECBIN} : ${OBJECTS}
 	${COMPILECPP} -o $@ ${OBJECTS}
+	make clean
 
 %.o : %.cpp
 	${COMPILECPP} -c $<
