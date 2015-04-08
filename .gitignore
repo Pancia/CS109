@@ -1,3 +1,5 @@
 asg1/yshell
 *.o
 *.dSYM/
+
+*.dep
