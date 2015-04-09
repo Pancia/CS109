@@ -19,20 +19,13 @@ inode::inode(inode_t init_type):
                 contents = make_shared<directory>();
                 break;
         }
-        DEBUGF('i', "inode " << inode_nr << ", type = " << type);
     }
 
 ostream& operator<<(ostream& out, const inode& inode) {
     out << "[INODE "
         << "inodenr = " << inode.inode_nr
         << ", type = " << (inode.type == DIR_INODE ? "DIR" : "FILE")
-        << ", contents = ";
-    if (inode.type == DIR_INODE) {
-        out << *directory_ptr_of(inode.contents).get();
-    } else {
-        out << *plain_file_ptr_of(inode.contents).get();
-    }
-    out << "]";
+        << "]";
     return out;
 }
 
@@ -131,13 +124,6 @@ void directory::remove(const string& filename) {
     }
 }
 
-directory::~directory() {
-    for (auto& file_dir : dirents) {
-        delete file_dir.second.get();
-        dirents.clear();
-    }
-}
-
 //====INODE_STATE====
 inode_state::inode_state() {
     root = make_shared<inode>(inode(DIR_INODE));
@@ -145,12 +131,21 @@ inode_state::inode_state() {
     root_dir->dirents.emplace(".", root);
     root_dir->dirents.emplace("..", root);
     cwd = root;
-    DEBUGF('i', "root = " << root->contents << ", cwd = " << cwd
-            << ", prompt = \"" << prompt << "\"");
+}
+
+void dfs_clear_dirents(directory_ptr dir) {
+    for (auto itor : dir->dirents) {
+        if (itor.second->type == DIR_INODE
+                && itor.first != "."
+                && itor.first != "..") {
+            dfs_clear_dirents(directory_ptr_of(itor.second->contents));
+        }
+    }
+    dir->dirents.clear();
 }
 
 inode_state::~inode_state() {
-    delete root.get();
+    dfs_clear_dirents(directory_ptr_of(root->contents));
 }
 
 ostream& operator<<(ostream& out, const inode_state& state) {

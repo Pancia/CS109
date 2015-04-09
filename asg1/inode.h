@@ -93,6 +93,7 @@ class inode {
 class file_base {
     friend class inode_state;
     friend void print_inode(inode_ptr inode, string dirname);
+    friend inode::~inode();
     protected:
         file_base() = default;
         file_base(const file_base&) = default;
@@ -152,10 +153,10 @@ class plain_file: public file_base {
 class directory: public file_base {
     friend class inode_state;
     friend ostream& operator<<(ostream& out, const directory& dir);
+    friend void dfs_clear_dirents(directory_ptr dir);
     private:
         dir_map dirents;
     public:
-        ~directory();
         size_t size() const override;
         void remove(const string& filename);
         inode& mkdir(inode_ptr inode, const string& dirname);
