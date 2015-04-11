@@ -119,9 +119,8 @@ void directory::remove(const string& filename) {
                 ->size() > 2) {
         throw yshell_exn("directory::remove: "
                 "Cannot remove a non-empty directory");
-    } else {
-        dirents.erase(maybe_file);
     }
+    dirents.erase(maybe_file);
 }
 
 //====INODE_STATE====
@@ -162,7 +161,7 @@ void inode_state::set_prompt(string new_prompt) {
 }
 
 string inode_state::get_prompt() {
-    return this->prompt + " ";
+    return this->prompt;
 }
 
 void inode_state::cat(const wordvec& args) {
@@ -186,15 +185,13 @@ void inode_state::cat(const wordvec& args) {
         } else if (maybe_file->second->type == DIR_INODE) {
             cwd = old_cwd;
             throw yshell_exn("cat: " + filename + ": Is a directory");
-        } else {
-            auto file
-                = plain_file_ptr_of(maybe_file->second->contents);
-            cout << file->readfile() << endl;
         }
+        auto file = plain_file_ptr_of(maybe_file->second->contents);
+        cout << file->readfile() << endl;
+
         cwd = tmp_cwd;
     }
 
-    // Go back to old dir
     cwd = old_cwd;
 }
 
@@ -211,10 +208,9 @@ void inode_state::cd(const wordvec& args) {
                     + args[0]);
         } else if (maybe_dir->second->type != DIR_INODE) {
             throw yshell_exn("cd: " + args[0] + " is not a directory");
-        } else {
-            cwd = maybe_dir->second;
-            this->cd(wordvec(args.begin()+1,args.end()));
         }
+        cwd = maybe_dir->second;
+        this->cd(wordvec(args.begin()+1,args.end()));
     }
 }
 
@@ -272,7 +268,6 @@ void inode_state::ls(const wordvec& args, bool recursive) {
 cleanup:
         cwd = tmp_cwd;
     }
-    // Go back to old dir
     cwd = old_cwd;
 }
 
@@ -310,7 +305,6 @@ void inode_state::make(const wordvec& args) {
             = {plain_file_ptr_of(i_new_file->contents)};
         new_file->writefile(wordvec(args.begin()+1, args.end()));
     }
-    // Go back to old dir
     cwd = old_cwd;
 }
 
@@ -326,7 +320,6 @@ void inode_state::mkdir(const wordvec& args) {
     }
     directory_ptr_of(cwd->contents)->mkdir(cwd, dir_name);
 
-    // Go back to old dir
     cwd = old_cwd;
 }
 
@@ -355,7 +348,6 @@ string inode_state::get_wd() {
         }
         path.push_back(prev_dir);
     }
-    // Go back to old dir
     cwd = old_cwd;
 
     reverse(path.begin(), path.end());
@@ -402,14 +394,12 @@ void inode_state::rm(const wordvec& args, bool recursive) {
                 this->rm(wordvec{item.first}, true);
                 cwd = tmp_cwd;
             }
-            // Go back, then delete filename
             cwd = prev_cwd;
             this->rm(wordvec{filename}, true);
         } else {
             cur_dir->remove(filename);
         }
     }
-    // Go back to old dir
     cwd = old_cwd;
 }
 

@@ -41,7 +41,7 @@ class inode_state {
         inode_state& operator=(const inode_state&) = delete;
         inode_ptr root {nullptr};
         inode_ptr cwd {nullptr};
-        string prompt {"%"};
+        string prompt {"% "};
     public:
         inode_state();
         ~inode_state();
