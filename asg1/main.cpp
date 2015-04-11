@@ -36,21 +36,20 @@ void scan_options(int argc, char** argv) {
 /*
  * main -
  *    Main program which loops reading commands until end of file.
- *    TODO:
+ *    REF:
  *      - namespace new_name = old_name;
- *      - using std::cout;
- *      - (re-)indent main
+ *    TODO:
  *      - Inode namespace "sh"
  *      - Debug levels? (eg: debug, warning, error, ...)
  */
 int main(int argc, char** argv) {
     util::execname(argv[0]);
     std::cerr << std::boolalpha;
-    std::cout << argv[0] << " build "
-        << __DATE__ << " " << __TIME__ << std::endl;
+    std::cout << argv[0] << " built on:"
+        << __DATE__ << " @" << __TIME__ << std::endl;
     scan_options(argc, argv);
     bool need_echo = util::want_echo();
-    commands cmdmap;
+    cmd::commands cmdmap;
     inode_state state;
     try {
         for (;;) {
@@ -86,14 +85,14 @@ int main(int argc, char** argv) {
                 auto args = std::vector<std::string>(
                         words.begin() + 1,
                         words.end());
-                command_fn fn = cmdmap.at(words.at(0));
+                cmd::command_fn fn = cmdmap.at(words.at(0));
                 fn(state, args);
             } catch(util::yshell_exn& exn) {
                 util::complain() << exn.what() << std::endl;
             }
         }
-    } catch(ysh_exit_exn& _exn) {}
+    } catch(cmd::ysh_exit_exn& _exn) {}
 
-    return exit_status_message();
+    return cmd::exit_status_message();
 }
 
