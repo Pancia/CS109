@@ -164,6 +164,7 @@ std::string inode_state::get_prompt() {
     return this->prompt;
 }
 
+//=====INODE_STATE COMMAND/SHELL FUNCTIONS=====
 void inode_state::cat(const util::wordvec& args) {
     DEBUGF('i', args);
     inode_ptr old_cwd = cwd;
@@ -202,18 +203,27 @@ void inode_state::cd(const util::wordvec& args) {
         return;
     } else if (args[0] == "/") {
         cwd = root;
-    } else {
-        directory_ptr dir = directory_ptr_of(cwd->contents);
-        auto maybe_dir = dir->dirents.find(args[0]);
-        if (maybe_dir == dir->dirents.end()) {
-            throw util::yshell_exn("cd: Could not find directory: "
-                    + args[0]);
-        } else if (maybe_dir->second->type != DIR_INODE) {
-            throw util::yshell_exn("cd: "
-                    + args[0] + " is not a directory");
-        }
-        cwd = maybe_dir->second;
-        this->cd(util::wordvec(args.begin()+1,args.end()));
+        return;
+    }
+    directory_ptr dir = directory_ptr_of(cwd->contents);
+    auto maybe_dir = dir->dirents.find(args[0]);
+    if (maybe_dir == dir->dirents.end()) {
+        throw util::yshell_exn("cd: Could not find directory: "
+                + args[0]);
+    } else if (maybe_dir->second->type != DIR_INODE) {
+        throw util::yshell_exn("cd: "
+                + args[0] + " is not a directory");
+    }
+    inode_ptr old_cwd = cwd;
+
+    // Change directory!
+    cwd = maybe_dir->second;
+
+    try {
+        this->cd(util::wordvec(args.begin()+1, args.end()));
+    } catch(util::yshell_exn& exn) {
+        cwd = old_cwd;
+        throw exn;
     }
 }
 

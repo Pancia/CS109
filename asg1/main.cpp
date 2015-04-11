@@ -40,7 +40,8 @@ void scan_options(int argc, char** argv) {
  *      - namespace new_name = old_name;
  *      - using std::cout;
  *      - (re-)indent main
- *      - FIX: cd to dir/file should not leave you in dir
+ *      - Inode namespace "sh"
+ *      - Debug levels? (eg: debug, warning, error, ...)
  */
 int main(int argc, char** argv) {
     util::execname(argv[0]);
@@ -88,16 +89,10 @@ int main(int argc, char** argv) {
                 command_fn fn = cmdmap.at(words.at(0));
                 fn(state, args);
             } catch(util::yshell_exn& exn) {
-                // If there is a problem discovered in any function, an
-                //   exn is thrown and printed here.
-                DEBUGF('x', "EXITING");
                 util::complain() << exn.what() << std::endl;
             }
         }
-    } catch(ysh_exit_exn& _) {
-        // This catch intentionally left blank.
-        DEBUGF('x', "EXITING");
-    }
+    } catch(ysh_exit_exn& _exn) {}
 
     return exit_status_message();
 }
