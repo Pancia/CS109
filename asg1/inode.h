@@ -153,7 +153,6 @@ class plain_file: public file_base {
 class directory: public file_base {
     friend class inode_state;
     friend ostream& operator<<(ostream& out, const directory& dir);
-    friend void dfs_clear_dirents(directory_ptr dir);
     private:
         dir_map dirents;
     public:
@@ -161,6 +160,7 @@ class directory: public file_base {
         void remove(const string& filename);
         inode& mkdir(inode_ptr inode, const string& dirname);
         inode& mkfile(const string& filename);
+        void df_clear();
 };
 
 #endif

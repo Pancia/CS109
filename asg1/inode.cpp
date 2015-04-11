@@ -132,19 +132,19 @@ inode_state::inode_state() {
     cwd = root;
 }
 
-void dfs_clear_dirents(directory_ptr dir) {
-    for (auto itor : dir->dirents) {
-        if (itor.second->type == DIR_INODE
-                && itor.first != "."
-                && itor.first != "..") {
-            dfs_clear_dirents(directory_ptr_of(itor.second->contents));
+void directory::df_clear() {
+    for (auto it : this->dirents) {
+        if (it.second->type == DIR_INODE
+                && it.first != "."
+                && it.first != "..") {
+            directory_ptr_of(it.second->contents)->df_clear();
         }
     }
-    dir->dirents.clear();
+    this->dirents.clear();
 }
 
 inode_state::~inode_state() {
-    dfs_clear_dirents(directory_ptr_of(root->contents));
+    directory_ptr_of(root->contents)->df_clear();
 }
 
 ostream& operator<<(ostream& out, const inode_state& state) {
