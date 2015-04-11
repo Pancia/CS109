@@ -205,6 +205,8 @@ void inode_state::cd(const util::wordvec& args) {
         cwd = root;
         return;
     }
+
+    // Inspect args[0], throw up if not found or isn't a dir
     directory_ptr dir = directory_ptr_of(cwd->contents);
     auto maybe_dir = dir->dirents.find(args[0]);
     if (maybe_dir == dir->dirents.end()) {
@@ -214,11 +216,12 @@ void inode_state::cd(const util::wordvec& args) {
         throw util::yshell_exn("cd: "
                 + args[0] + " is not a directory");
     }
-    inode_ptr old_cwd = cwd;
 
-    // Change directory!
+    // Save cwd, then "Change Directory"!
+    inode_ptr old_cwd = cwd;
     cwd = maybe_dir->second;
 
+    // Recur on remaining args
     try {
         this->cd(util::wordvec(args.begin()+1, args.end()));
     } catch(util::yshell_exn& exn) {
