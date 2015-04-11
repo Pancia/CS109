@@ -4,8 +4,6 @@
 #include "debug.h"
 #include "inode.h"
 
-using namespace std;
-
 //====INODE====
 int inode::next_inode_nr {1};
 
@@ -13,15 +11,15 @@ inode::inode(inode_t init_type):
     inode_nr(next_inode_nr++), type(init_type) {
         switch (type) {
             case PLAIN_INODE:
-                contents = make_shared<plain_file>();
+                contents = std::make_shared<plain_file>();
                 break;
             case DIR_INODE:
-                contents = make_shared<directory>();
+                contents = std::make_shared<directory>();
                 break;
         }
     }
 
-ostream& operator<<(ostream& out, const inode& inode) {
+std::ostream& operator<<(std::ostream& out, const inode& inode) {
     out << "[INODE "
         << "inodenr = " << inode.inode_nr
         << ", type = " << (inode.type == DIR_INODE ? "DIR" : "FILE")
@@ -35,21 +33,21 @@ int inode::get_inode_nr() const {
 }
 
 plain_file_ptr plain_file_ptr_of(file_base_ptr ptr) {
-    plain_file_ptr pfptr = dynamic_pointer_cast<plain_file>(ptr);
+    plain_file_ptr pfptr = std::dynamic_pointer_cast<plain_file>(ptr);
     if (pfptr == nullptr)
-        throw invalid_argument("plain_file_ptr_of");
+        throw std::invalid_argument("plain_file_ptr_of");
     return pfptr;
 }
 
 directory_ptr directory_ptr_of(file_base_ptr ptr) {
-    directory_ptr dirptr = dynamic_pointer_cast<directory>(ptr);
+    directory_ptr dirptr = std::dynamic_pointer_cast<directory>(ptr);
     if (dirptr == nullptr)
-        throw invalid_argument("directory_ptr_of");
+        throw std::invalid_argument("directory_ptr_of");
     return dirptr;
 }
 
 //====FILE====
-ostream& operator<<(ostream& out, const plain_file& file) {
+std::ostream& operator<<(std::ostream& out, const plain_file& file) {
     out << "[FILE "
         << "size = " << file.size()
         << ", data = " << file.data
@@ -62,7 +60,7 @@ ostream& operator<<(ostream& out, const plain_file& file) {
  * number of characters in it
  */
 size_t plain_file::size() const {
-    string file_str = util::intercalate(this->data, "");
+    std::string file_str = util::intercalate(this->data, "");
     size_t size {file_str.length()};
     DEBUGF('i', "size = " << size);
     return size;
@@ -90,7 +88,7 @@ size_t directory::size() const {
     return size;
 }
 
-ostream& operator<<(ostream& out, const directory& dir) {
+std::ostream& operator<<(std::ostream& out, const directory& dir) {
     out << "[DIRECTORY files = (";
     for (auto elem : dir.dirents) {
         out << elem.first << "|";
@@ -99,11 +97,12 @@ ostream& operator<<(ostream& out, const directory& dir) {
     return out;
 }
 
-inode& directory::mkdir(inode_ptr cwd, const string& dirname) {
-    inode_ptr dir = make_shared<inode>(inode(DIR_INODE));
+inode& directory::mkdir(inode_ptr cwd, const std::string& dirname) {
+    inode_ptr dir = std::make_shared<inode>(inode(DIR_INODE));
     auto maybe_dir = dirents.find(dirname);
     if (maybe_dir != dirents.end()) {
-        throw util::yshell_exn("Directory " + dirname + " already exists");
+        throw util::yshell_exn("Directory "
+                + dirname + " already exists");
     }
     dirents.emplace(dirname, dir);
     dir_map& new_dir = directory_ptr_of(dir->contents)->dirents;
@@ -112,7 +111,7 @@ inode& directory::mkdir(inode_ptr cwd, const string& dirname) {
     return *dir.get();
 }
 
-void directory::remove(const string& filename) {
+void directory::remove(const std::string& filename) {
     DEBUGF('i', filename);
     auto maybe_file = dirents.find(filename);
     if (maybe_file->second->type == DIR_INODE
@@ -126,7 +125,7 @@ void directory::remove(const string& filename) {
 
 //====INODE_STATE====
 inode_state::inode_state() {
-    root = make_shared<inode>(inode(DIR_INODE));
+    root = std::make_shared<inode>(inode(DIR_INODE));
     directory_ptr root_dir = directory_ptr_of(root->contents);
     root_dir->dirents.emplace(".", root);
     root_dir->dirents.emplace("..", root);
@@ -148,7 +147,7 @@ inode_state::~inode_state() {
     directory_ptr_of(root->contents)->df_clear();
 }
 
-ostream& operator<<(ostream& out, const inode_state& state) {
+std::ostream& operator<<(std::ostream& out, const inode_state& state) {
     out << "[INODE_STATE "
         << "root = " << state.root
         << ", cwd = " << state.cwd
@@ -157,11 +156,11 @@ ostream& operator<<(ostream& out, const inode_state& state) {
     return out;
 }
 
-void inode_state::set_prompt(string new_prompt) {
+void inode_state::set_prompt(std::string new_prompt) {
     this->prompt = new_prompt;
 }
 
-string inode_state::get_prompt() {
+std::string inode_state::get_prompt() {
     return this->prompt;
 }
 
@@ -169,7 +168,7 @@ void inode_state::cat(const util::wordvec& args) {
     DEBUGF('i', args);
     inode_ptr old_cwd = cwd;
 
-    for (string file_path : args) {
+    for (std::string file_path : args) {
         inode_ptr tmp_cwd = cwd;
 
         util::wordvec path = util::split(file_path, "/");
@@ -177,18 +176,20 @@ void inode_state::cat(const util::wordvec& args) {
             this->cd(util::wordvec(path.begin(), path.end()-1));
         }
 
-        string filename = path.back();
+        std::string filename = path.back();
         dir_map this_dir = directory_ptr_of(cwd->contents)->dirents;
         auto maybe_file = this_dir.find(filename);
         if (maybe_file == this_dir.end()) {
             cwd = old_cwd;
-            throw util::yshell_exn("cat: " + filename + ": File not found");
+            throw util::yshell_exn("cat: "
+                    + filename + ": File not found");
         } else if (maybe_file->second->type == DIR_INODE) {
             cwd = old_cwd;
-            throw util::yshell_exn("cat: " + filename + ": Is a directory");
+            throw util::yshell_exn("cat: "
+                    + filename + ": Is a directory");
         }
         auto file = plain_file_ptr_of(maybe_file->second->contents);
-        cout << file->readfile() << endl;
+        std::cout << file->readfile() << std::endl;
 
         cwd = tmp_cwd;
     }
@@ -208,25 +209,29 @@ void inode_state::cd(const util::wordvec& args) {
             throw util::yshell_exn("cd: Could not find directory: "
                     + args[0]);
         } else if (maybe_dir->second->type != DIR_INODE) {
-            throw util::yshell_exn("cd: " + args[0] + " is not a directory");
+            throw util::yshell_exn("cd: "
+                    + args[0] + " is not a directory");
         }
         cwd = maybe_dir->second;
         this->cd(util::wordvec(args.begin()+1,args.end()));
     }
 }
 
-void print_inode(inode_ptr inode, string dirname) {
-    cout << setw(6) << inode->get_inode_nr() << "  "
-        << setw(6) << inode->contents->size() << "  "
+void print_inode(inode_ptr inode, std::string dirname) {
+    std::cout << std::setw(6) << inode->get_inode_nr() << "  "
+        << std::setw(6) << inode->contents->size() << "  "
         << dirname << (inode->type == DIR_INODE ? "/" : "")
-        << endl;
+        << std::endl;
 }
 
 void inode_state::ls(const util::wordvec& args, bool recursive) {
     DEBUGF('i', args);
     inode_ptr old_cwd = cwd;
 
-    util::wordvec arg_paths = (args.size() == 0 ? util::wordvec{"."} : args);
+    util::wordvec arg_paths =
+        (args.size() == 0
+         ? util::wordvec{"."}
+         : args);
 
     for (auto arg_path : arg_paths) {
         inode_ptr tmp_cwd = cwd;
@@ -248,7 +253,7 @@ void inode_state::ls(const util::wordvec& args, bool recursive) {
                 goto cleanup;
             }
         }
-        cout << this->get_wd() << ":" << endl;
+        std::cout << this->get_wd() << ":" << std::endl;
         for (auto elem : directory_ptr_of(cwd->contents)->dirents) {
             print_inode(elem.second, elem.first);
             if (recursive) {
@@ -262,7 +267,7 @@ void inode_state::ls(const util::wordvec& args, bool recursive) {
             }
         }
         if (recursive) {
-            for (string elem : dir_stack) {
+            for (std::string elem : dir_stack) {
                 this->ls(util::wordvec{elem}, true);
             }
         }
@@ -282,7 +287,7 @@ void inode_state::make(const util::wordvec& args) {
     if (path.size() > 1) {
         this->cd(util::wordvec(path.begin(), path.end()-1));
     }
-    string filename = path.back();
+    std::string filename = path.back();
 
     dir_map& cwd_dir = directory_ptr_of(cwd->contents)->dirents;
     auto maybe_inode = cwd_dir.find(filename);
@@ -297,7 +302,7 @@ void inode_state::make(const util::wordvec& args) {
             i_new_file = maybe_inode->second;
         }
     } else { // otherwise, replace contents
-        i_new_file = make_shared<inode>(inode{PLAIN_INODE});
+        i_new_file = std::make_shared<inode>(inode{PLAIN_INODE});
         cwd_dir.emplace(filename, i_new_file);
     }
     // Maybe overwrite file
@@ -314,7 +319,7 @@ void inode_state::mkdir(const util::wordvec& args) {
     inode_ptr old_cwd = cwd;
 
     util::wordvec path = util::split(args[0], "/");
-    string dir_name = path.back();
+    std::string dir_name = path.back();
     if (path.size() > 1) {
         path.pop_back();
         this->cd(path);
@@ -324,11 +329,11 @@ void inode_state::mkdir(const util::wordvec& args) {
     cwd = old_cwd;
 }
 
-string inode_state::get_wd() {
+std::string inode_state::get_wd() {
     inode_ptr old_cwd = cwd;
     int prev_inode;
     util::wordvec path;
-    string prev_dir;
+    std::string prev_dir;
     while (cwd != root) {
         // Store the id of the inode we're in
         prev_inode = cwd->get_inode_nr();
@@ -363,19 +368,19 @@ void inode_state::rm(const util::wordvec& args, bool recursive) {
     if (args.size() == 0) {
         throw util::yshell_exn("rm: Please specify a path");
     } else if (args.size() != 1) {
-        throw util::yshell_exn("rm: Can only delete 1 file/dir at a time");
+        throw util::yshell_exn("rm: Can only delete 1 file at a time");
     } else if (args[0] == "/") {
         throw util::yshell_exn("rm: Cannot remove root");
     } else {
         util::wordvec path = util::split(args[0], "/");
-        string filename;
+        std::string filename;
         if (path.size() > 1) {
             this->cd(util::wordvec(path.begin(), path.end()-1));
         }
         filename = path.back();
         auto cur_dir = directory_ptr_of(cwd->contents);
         auto maybe_file = cur_dir->dirents.find(filename);
-        if (maybe_file == cur_dir->dirents.end()){
+        if (maybe_file == cur_dir->dirents.end()) {
             cwd = old_cwd;
             throw util::yshell_exn("rm: Invalid path: " + filename);
         }
