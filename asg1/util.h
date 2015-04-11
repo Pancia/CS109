@@ -12,10 +12,8 @@
 #include <vector>
 #include <sstream>
 
-using std::string;
-
 namespace util {
-    using wordvec = std::vector<string>;
+    using wordvec = std::vector<std::string>;
 
     //
     // yshell_exn -
@@ -24,18 +22,18 @@ namespace util {
     //
     class yshell_exn: public std::runtime_error {
         public:
-            explicit yshell_exn(const string& what);
+            explicit yshell_exn(const std::string& what);
     };
 
     //
     // setexecname -
-    //   Sets the static string to be used as an execname.
+    //   Sets the static std::string to be used as an execname.
     // execname -
     //   Returns the basename of the executable image, which is used in
     //   printing error messags.
     //
-    void execname(const string&);
-    string& execname();
+    void execname(const std::string&);
+    std::string& execname();
 
     //
     // want_echo -
@@ -62,16 +60,16 @@ namespace util {
 
     //
     // split -
-    //    Split a string into a wordvec(as defined above).  Any sequence
-    //    of chars in the delimiter string is used as a separator.  To
+    //    Split a std::string into a wordvec(as defined above).  Any sequence
+    //    of chars in the delimiter std::string is used as a separator.  To
     //    Split a pathname, use "/".  To split a shell command, use " ".
     //
-    wordvec split(const string& line, const string& delimiter);
+    wordvec split(const std::string& line, const std::string& delimiter);
 
     // intercalate -
-    //   intersperse delim inbetween words, return the concat'ed string
+    //   intersperse delim inbetween words, return the concat'ed std::string
     //   see haskell's intersperse
-    string intercalate(wordvec words, string delim);
+    std::string intercalate(wordvec words, std::string delim);
 
     // complain -
     //   Used for starting error messages.  Sets the exit status to
