@@ -60,14 +60,17 @@ namespace util {
 
     //
     // split -
-    //    Split a std::string into a wordvec(as defined above).  Any sequence
-    //    of chars in the delimiter std::string is used as a separator.  To
-    //    Split a pathname, use "/".  To split a shell command, use " ".
+    //    Split a std::string into a wordvec(as defined above).
+    //    Any sequence of chars in the delimiter string
+    //    is used as a separator.
+    //    To Split a pathname, use "/".
+    //    To split a shell command, use " ".
     //
-    wordvec split(const std::string& line, const std::string& delimiter);
+    wordvec split(const std::string& line,
+                  const std::string& delimiter);
 
     // intercalate -
-    //   intersperse delim inbetween words, return the concat'ed std::string
+    //   intersperse delim inbetween words, return the concat'ed string
     //   see haskell's intersperse
     std::string intercalate(wordvec words, std::string delim);
 

@@ -18,14 +18,14 @@
  *    Not to be called by user code.
  */
 class debugflags {
-   private:
-      using flagset = std::bitset<UCHAR_MAX + 1>;
-      static flagset flags;
-   public:
-      static void setflags(const std::string& optflags);
-      static bool getflag(char flag);
-      static void where(char flag, const char* file, int line,
-                         const char* func);
+    private:
+        using flagset = std::bitset<UCHAR_MAX + 1>;
+        static flagset flags;
+    public:
+        static void setflags(const std::string& optflags);
+        static bool getflag(char flag);
+        static void where(char flag, const char* file, int line,
+                const char* func);
 };
 
 /**
@@ -45,17 +45,18 @@ class debugflags {
 #define STRINGIFY(x) STRINGIFY2(x)
 #define STRINGIFY2(x) #x
 #define DEBUGF(FLAG,CODE) { \
-           if (debugflags::getflag(FLAG)) { \
-              debugflags::where(FLAG, __FILE__, __LINE__, __func__); \
-              std::cerr << ">>\"" << STRINGIFY(CODE) << "\" = " << CODE << std::endl; \
-           } \
-        }
+    if (debugflags::getflag(FLAG)) { \
+        debugflags::where(FLAG, __FILE__, __LINE__, __func__); \
+        std::cerr << ">>\"" << STRINGIFY(CODE) << "\" = " \
+                  << CODE << std::endl; \
+    } \
+}
 #define DEBUGS(FLAG,STMT) { \
-           if (debugflags::getflag(FLAG)) { \
-              debugflags::where(FLAG, __FILE__, __LINE__, __func__); \
-              STMT; \
-           } \
-        }
+    if (debugflags::getflag(FLAG)) { \
+        debugflags::where(FLAG, __FILE__, __LINE__, __func__); \
+        STMT; \
+    } \
+}
 #endif
 
 #endif
