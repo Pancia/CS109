@@ -1,16 +1,14 @@
 #include <cstdlib>
 #include <unistd.h>
 
-using namespace std;
-
 #include "util.h"
 #include "debug.h"
 
-util::yshell_exn::yshell_exn(const string& what):
+util::yshell_exn::yshell_exn(const std::string& what):
     runtime_error(what) {}
 
 int util::exit_status::status = EXIT_SUCCESS;
-static string execname_string;
+static std::string execname_str;
 
 void util::exit_status::set(int new_status) {
     status = new_status;
@@ -20,13 +18,13 @@ int util::exit_status::get() {
     return status;
 }
 
-void util::execname(const string& name) {
-    execname_string = name.substr(name.rfind('/') + 1);
-    DEBUGF('u', execname_string);
+void util::execname(const std::string& name) {
+    execname_str = name.substr(name.rfind('/') + 1);
+    DEBUGF('u', execname_str);
 }
 
-string& util::execname() {
-    return execname_string;
+std::string& util::execname() {
+    return execname_str;
 }
 
 bool util::want_echo() {
@@ -39,15 +37,17 @@ bool util::want_echo() {
     return cin_is_not_a_tty or cout_is_not_a_tty;
 }
 
-util::wordvec util::split(const string& line, const string& delimiters) {
+util::wordvec util::split(
+        const std::string& line,
+        const std::string& delimiters) {
     util::wordvec words;
     size_t end = 0;
 
-    // Loop over the string, splitting out words, and for each word
+    // Loop over the std::string, splitting out words, and for each word
     // thus found, append it to the output wordvec.
     for(;;) {
         size_t start = line.find_first_not_of(delimiters, end);
-        if(start == string::npos) break;
+        if(start == std::string::npos) break;
         end = line.find_first_of(delimiters, start);
         words.push_back(line.substr(start, end - start));
     }
@@ -55,8 +55,8 @@ util::wordvec util::split(const string& line, const string& delimiters) {
     return words;
 }
 
-string util::intercalate(util::wordvec words, string delim) {
-    stringstream ss;
+std::string util::intercalate(util::wordvec words, std::string delim) {
+    std::stringstream ss;
     const int words_size = words.size();
     for (int i = 0; i < words_size; ++i) {
         if (i != 0) { ss << delim; }
@@ -65,9 +65,9 @@ string util::intercalate(util::wordvec words, string delim) {
     return ss.str();
 }
 
-ostream& util::complain() {
+std::ostream& util::complain() {
     util::exit_status::set(EXIT_FAILURE);
-    cerr << execname() << ": ";
-    return cerr;
+    std::cerr << execname() << ": ";
+    return std::cerr;
 }
 
