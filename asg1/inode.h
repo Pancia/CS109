@@ -8,8 +8,6 @@
 #include <vector>
 #include <numeric>
 
-using namespace std;
-
 #include "util.h"
 
 /**
@@ -21,11 +19,11 @@ class inode;
 class file_base;
 class plain_file;
 class directory;
-using inode_ptr = shared_ptr<inode>;
-using file_base_ptr = shared_ptr<file_base>;
-using plain_file_ptr = shared_ptr<plain_file>;
-using directory_ptr = shared_ptr<directory>;
-using dir_map = map<string,inode_ptr>;
+using inode_ptr = std::shared_ptr<inode>;
+using file_base_ptr = std::shared_ptr<file_base>;
+using plain_file_ptr = std::shared_ptr<plain_file>;
+using directory_ptr = std::shared_ptr<directory>;
+using dir_map = std::map<std::string,inode_ptr>;
 
 /**
  * inode_state -
@@ -35,25 +33,25 @@ using dir_map = map<string,inode_ptr>;
  */
 class inode_state {
     friend class inode;
-    friend ostream& operator<<(ostream& out, const inode_state& state);
+    friend std::ostream& operator<<(std::ostream& out, const inode_state& state);
     private:
         inode_state(const inode_state&) = delete; // copy ctor
         inode_state& operator=(const inode_state&) = delete;
         inode_ptr root {nullptr};
         inode_ptr cwd {nullptr};
-        string prompt {"% "};
+        std::string prompt {"% "};
     public:
         inode_state();
         ~inode_state();
-        void set_prompt(string new_prompt);
-        string get_prompt();
-        string get_wd();
-        void cat  (const wordvec& words);
-        void cd   (const wordvec& words);
-        void ls   (const wordvec& words, bool recursive);
-        void make (const wordvec& words);
-        void mkdir(const wordvec& words);
-        void rm   (const wordvec& words, bool recursive);
+        void set_prompt(std::string new_prompt);
+        std::string get_prompt();
+        std::string get_wd();
+        void cat  (const util::wordvec& words);
+        void cd   (const util::wordvec& words);
+        void ls   (const util::wordvec& words, bool recursive);
+        void make (const util::wordvec& words);
+        void mkdir(const util::wordvec& words);
+        void rm   (const util::wordvec& words, bool recursive);
 };
 
 /**
@@ -72,7 +70,7 @@ class inode_state {
  */
 class inode {
     friend class inode_state;
-    friend ostream& operator<<(ostream& out, const inode& inode);
+    friend std::ostream& operator<<(std::ostream& out, const inode& inode);
     private:
         static int next_inode_nr;
         int inode_nr;
@@ -92,7 +90,7 @@ class inode {
  */
 class file_base {
     friend class inode_state;
-    friend void print_inode(inode_ptr inode, string dirname);
+    friend void print_inode(inode_ptr inode, std::string dirname);
     friend inode::~inode();
     protected:
         file_base() = default;
@@ -112,22 +110,22 @@ class file_base {
  *
  * Used to hold data.
  * synthesized default ctor -
- *    Default vector<string> is a an empty vector.
+ *    Default vector<std::string> is a an empty vector.
  * readfile -
- *    Returns a copy of the contents of the wordvec in the file.
+ *    Returns a copy of the contents of the util::wordvec in the file.
  *    Throws an yshell_exn for a directory.
  * writefile -
  *    Replaces the contents of a file with new contents.
  *    Throws an yshell_exn for a directory.
  */
 class plain_file: public file_base {
-    friend ostream& operator<<(ostream& out, const plain_file& file);
+    friend std::ostream& operator<<(std::ostream& out, const plain_file& file);
     private:
-        wordvec data;
+        util::wordvec data;
     public:
         size_t size() const override;
-        const wordvec& readfile() const;
-        void writefile(const wordvec& newdata);
+        const util::wordvec& readfile() const;
+        void writefile(const util::wordvec& newdata);
 };
 
 /**
@@ -152,14 +150,14 @@ class plain_file: public file_base {
  */
 class directory: public file_base {
     friend class inode_state;
-    friend ostream& operator<<(ostream& out, const directory& dir);
+    friend std::ostream& operator<<(std::ostream& out, const directory& dir);
     private:
         dir_map dirents;
     public:
         size_t size() const override;
-        void remove(const string& filename);
-        inode& mkdir(inode_ptr inode, const string& dirname);
-        inode& mkfile(const string& filename);
+        void remove(const std::string& filename);
+        inode& mkdir(inode_ptr inode, const std::string& dirname);
+        inode& mkfile(const std::string& filename);
         void df_clear();
 };
 

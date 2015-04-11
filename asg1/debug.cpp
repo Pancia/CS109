@@ -2,8 +2,6 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
 #include "debug.h"
 #include "util.h"
 
@@ -28,7 +26,7 @@ bool debugflags::getflag(char flag) {
 
 void debugflags::where(char flag, const char* file, int line,
                         const char* func) {
-   cout << execname() << ": DEBUG(" << flag << ") "
-        << file << "[" << line << "] " << func << "()" << endl;
+    std::cout << util::execname() << ": DEBUG(" << flag << ") "
+        << file << "[" << line << "] " << func << "()" << std::endl;
 }
 

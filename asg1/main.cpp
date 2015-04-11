@@ -4,8 +4,6 @@
 #include <utility>
 #include <unistd.h>
 
-using namespace std;
-
 #include "commands.h"
 #include "debug.h"
 #include "inode.h"
@@ -25,13 +23,13 @@ void scan_options(int argc, char** argv) {
                 debugflags::setflags(optarg);
                 break;
             default:
-                complain() << "-" <<(char) option << ": invalid option"
-                    << endl;
+                util::complain() << "-" <<(char) option << ": invalid option"
+                    << std::endl;
                 break;
         }
     }
     if (optind < argc) {
-        complain() << "operands not permitted" << endl;
+        util::complain() << "operands not permitted" << std::endl;
     }
 }
 
@@ -39,14 +37,18 @@ void scan_options(int argc, char** argv) {
 //
 // main -
 //    Main program which loops reading commands until end of file.
+//    TODO:
+//      - namespace new_name = old_name;
+//      - using std::cout;
+//      - (re-)indent main
 //
 int main(int argc, char** argv) {
-   execname(argv[0]);
-   cout << boolalpha; // Print false or true instead of 0 or 1.
-   cerr << boolalpha;
-   cout << argv[0] << " build " << __DATE__ << " " << __TIME__ << endl;
+   util::execname(argv[0]);
+   std::cout << std::boolalpha; // Print false or true instead of 0 or 1.
+   std::cerr << std::boolalpha;
+   std::cout << argv[0] << " build " << __DATE__ << " " << __TIME__ << std::endl;
    scan_options(argc, argv);
-   bool need_echo = want_echo();
+   bool need_echo = util::want_echo();
    commands cmdmap;
    inode_state state;
    try {
@@ -54,38 +56,38 @@ int main(int argc, char** argv) {
            try {
                // Read a line, break at EOF, and echo print the prompt
                // if one is needed.
-               cout << state.get_prompt();
-               string line;
-               getline(cin, line);
-               if (cin.eof()) {
+               std::cout << state.get_prompt();
+               std::string line;
+               getline(std::cin, line);
+               if (std::cin.eof()) {
                    if (need_echo)
-                       cout << "^D";
-                   cout << endl;
+                       std::cout << "^D";
+                   std::cout << std::endl;
                    DEBUGF('y', "EOF");
                    break;
                }
                if (need_echo)
-                   cout << line << endl;
+                   std::cout << line << std::endl;
                // Ignore empty lines, causes issues later on
                if (!line.compare(""))
                    continue;
 
                // Split the line into words and lookup the appropriate
                // function.  Complain or call it.
-               wordvec words = split(line, " \t");
-               string cmd = words.at(0);
+               util::wordvec words = util::split(line, " \t");
+               std::string cmd = words.at(0);
                // If it's a comment, ignore it
-               if (!string(1, cmd[0]).compare("#"))
+               if (!std::string(1, cmd[0]).compare("#"))
                    continue;
-               vector<string> args
-                   = vector<string>(words.begin() + 1, words.end());
+               std::vector<std::string> args
+                   = std::vector<std::string>(words.begin() + 1, words.end());
                command_fn fn = cmdmap.at(words.at(0));
                fn(state, args);
-           } catch(yshell_exn& exn) {
+           } catch(util::yshell_exn& exn) {
                // If there is a problem discovered in any function, an
                // exn is thrown and printed here.
                DEBUGF('x', "EXITING");
-               complain() << exn.what() << endl;
+               util::complain() << exn.what() << std::endl;
            }
        }
    } catch(ysh_exit_exn& _) {
