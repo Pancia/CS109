@@ -18,14 +18,13 @@ void debugflags::setflags(const std::string& initflags) {
 // getflag -
 //    Check to see if a certain flag is on.
 //
-
 bool debugflags::getflag(char flag) {
    // WARNING: Don't TRACE this function or the stack will blow up.
    return flags.test(static_cast<unsigned char>(flag));
 }
 
 void debugflags::where(char flag, const char* file, int line,
-                        const char* func) {
+                       const char* func) {
     std::cout << util::execname() << ": DEBUG(" << flag << ") "
         << file << "[" << line << "] " << func << "()" << std::endl;
 }

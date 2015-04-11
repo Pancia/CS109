@@ -42,10 +42,12 @@ class debugflags {
 #define DEBUGF(FLAG,CODE) ;
 #define DEBUGS(FLAG,STMT) ;
 #else
+#define STRINGIFY(x) STRINGIFY2(x)
+#define STRINGIFY2(x) #x
 #define DEBUGF(FLAG,CODE) { \
            if (debugflags::getflag(FLAG)) { \
               debugflags::where(FLAG, __FILE__, __LINE__, __func__); \
-              std::cerr << "    " << CODE << std::endl; \
+              std::cerr << ">>\"" << STRINGIFY(CODE) << "\" = " << CODE << std::endl; \
            } \
         }
 #define DEBUGS(FLAG,STMT) { \
