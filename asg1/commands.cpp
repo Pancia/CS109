@@ -2,9 +2,6 @@
 #include "debug.h"
 #include "util.h"
 
-using std::cout;
-using std::endl;
-
 ysh_exit_exn::ysh_exit_exn(int exit_status) {
     util::exit_status::set(exit_status);
 }
@@ -22,7 +19,7 @@ commands::commands(): map({
    {"pwd"   , fn_pwd   },
    {"rm"    , fn_rm    },
    {"rmr"   , fn_rmr   },
-}){}
+}) {}
 
 command_fn commands::at(const std::string& cmd) {
    // Note: value_type is pair<const key_type, mapped_type>
@@ -35,13 +32,13 @@ command_fn commands::at(const std::string& cmd) {
    return result->second;
 }
 
-void fn_cat(inode_state& state, const util::wordvec& args){
+void fn_cat(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.cat(args);
 }
 
-void fn_cd(inode_state& state, const util::wordvec& args){
+void fn_cd(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    if (args.size() > 1) {
@@ -54,61 +51,61 @@ void fn_cd(inode_state& state, const util::wordvec& args){
            : util::wordvec{"/"});
 }
 
-void fn_echo(inode_state& state, const util::wordvec& args){
+void fn_echo(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
-   cout << args << endl;
+   std::cout << args << std::endl;
 }
 
-void fn_exit(inode_state& state, const util::wordvec& args){
+void fn_exit(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    throw ysh_exit_exn(stoi(args[0]));
 }
 
-void fn_ls(inode_state& state, const util::wordvec& args){
+void fn_ls(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.ls(args, false);
 }
 
-void fn_lsr(inode_state& state, const util::wordvec& args){
+void fn_lsr(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.ls(args, true);
 }
 
-void fn_make(inode_state& state, const util::wordvec& args){
+void fn_make(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.make(args);
 }
 
-void fn_mkdir(inode_state& state, const util::wordvec& args){
+void fn_mkdir(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.mkdir(args);
 }
 
-void fn_prompt(inode_state& state, const util::wordvec& args){
+void fn_prompt(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.set_prompt(util::intercalate(args, ""));
 }
 
-void fn_pwd(inode_state& state, const util::wordvec& args){
+void fn_pwd(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
-   cout << state.get_wd() << endl;
+   std::cout << state.get_wd() << std::endl;
 }
 
-void fn_rm(inode_state& state, const util::wordvec& args){
+void fn_rm(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.rm(args, false);
 }
 
-void fn_rmr(inode_state& state, const util::wordvec& args){
+void fn_rmr(inode_state& state, const util::wordvec& args) {
    DEBUGF('c', state);
    DEBUGF('c', args);
    state.rm(args, true);
@@ -116,7 +113,9 @@ void fn_rmr(inode_state& state, const util::wordvec& args){
 
 int exit_status_message() {
    int exit_status = util::exit_status::get();
-   cout << util::execname() << ": exit(" << exit_status << ")" << endl;
+   std::cout << util::execname()
+       << ": exit(" << exit_status << ")"
+       << std::endl;
    return exit_status;
 }
 
