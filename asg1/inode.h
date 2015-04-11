@@ -33,7 +33,8 @@ using dir_map = std::map<std::string,inode_ptr>;
  */
 class inode_state {
     friend class inode;
-    friend std::ostream& operator<<(std::ostream& out, const inode_state& state);
+    friend std::ostream& operator<<(std::ostream& out,
+                               const inode_state& state);
     private:
         inode_state(const inode_state&) = delete; // copy ctor
         inode_state& operator=(const inode_state&) = delete;
@@ -70,7 +71,8 @@ class inode_state {
  */
 class inode {
     friend class inode_state;
-    friend std::ostream& operator<<(std::ostream& out, const inode& inode);
+    friend std::ostream& operator<<(std::ostream& out,
+                                     const inode& inode);
     private:
         static int next_inode_nr;
         int inode_nr;
@@ -119,7 +121,8 @@ class file_base {
  *    Throws an yshell_exn for a directory.
  */
 class plain_file: public file_base {
-    friend std::ostream& operator<<(std::ostream& out, const plain_file& file);
+    friend std::ostream& operator<<(std::ostream& out,
+                                const plain_file& file);
     private:
         util::wordvec data;
     public:
@@ -147,10 +150,15 @@ class plain_file: public file_base {
  * mkfile -
  *    Create a new empty text file with the given name.  Error if
  *    a dirent with that name exists.
+ * df_clear -
+ *    Performs a depth-first clear()-ing of all directories in dirents.
+ *    You should probably call this on the root dir
+ *    to free all the memory.
  */
 class directory: public file_base {
     friend class inode_state;
-    friend std::ostream& operator<<(std::ostream& out, const directory& dir);
+    friend std::ostream& operator<<(std::ostream& out,
+                                 const directory& dir);
     private:
         dir_map dirents;
     public:
