@@ -384,6 +384,9 @@ void inode_state::rm(const util::wordvec& args, bool recursive) {
         throw util::yshell_exn("rm: Can only delete 1 file at a time");
     } else if (args[0] == "/") {
         throw util::yshell_exn("rm: Cannot remove root");
+    } else if (args[0] == "."
+            || args[0] == "..") {
+        throw util::yshell_exn("rm: Cannot remove \".\" or \"..\"");
     } else {
         util::wordvec path = util::split(args[0], "/");
         std::string filename;
