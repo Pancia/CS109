@@ -23,13 +23,6 @@ ${EXECBIN} : ${OBJECTS}
 %.o : %.cpp
 	${COMPILECPP} -c $<
 
-ci : ${ALLSOURCES}
-	cid + ${ALLSOURCES}
-	- checksource ${ALLSOURCES}
-
-lis : ${ALLSOURCES}
-	mkpspdf ${LISTING} ${ALLSOURCES} ${DEPFILE}
-
 clean :
 	- rm ${OBJECTS} ${DEPFILE}
 
@@ -37,7 +30,6 @@ spotless : clean
 	- rm ${EXECBIN} ${LISTING} ${LISTING:.ps=.pdf}
 
 dep : ${CPPSOURCE} ${CPPHEADER}
-	#@ echo "# ${DEPFILE} created `LC_TIME=C date`" >${DEPFILE}
 	${MAKEDEPCPP} ${CPPSOURCE} >>${DEPFILE}
 
 ${DEPFILE} : ${MKFILE}
@@ -45,7 +37,7 @@ ${DEPFILE} : ${MKFILE}
 	${GMAKE} dep
 
 again :
-	${GMAKE} spotless dep ci all lis
+	${GMAKE} spotless all
 
 submit :
 	submit cmps109-wm.s15 asg1 ${ALLSOURCES}
