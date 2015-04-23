@@ -1,12 +1,9 @@
-// $Id: bigint.h,v 1.16 2014-07-02 20:01:17-07 - - $
-
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
 
 #include <exception>
 #include <iostream>
 #include <utility>
-using namespace std;
 
 #include "debug.h"
 
@@ -14,10 +11,10 @@ using namespace std;
 // Define class bigint
 //
 class bigint {
-      friend ostream& operator<< (ostream&, const bigint&);
+      friend std::ostream& operator<< (std::ostream&, const bigint&);
    private:
       long long_value {};
-      using quot_rem = pair<bigint,bigint>;
+      using quot_rem = std::pair<bigint,bigint>;
       using unumber = unsigned long;
       friend quot_rem divide (const bigint&, const bigint&);
       friend void multiply_by_2 (unumber&);
@@ -38,7 +35,7 @@ class bigint {
       // Extra ctors to make bigints.
       //
       bigint (const long);
-      bigint (const string&);
+      bigint (const std::string&);
 
       //
       // Basic add/sub operators.
@@ -48,7 +45,7 @@ class bigint {
       friend bigint operator+ (const bigint&);
       friend bigint operator- (const bigint&);
       long to_long() const;
-
+
       //
       // Extended operators implemented with add/sub.
       //
@@ -67,7 +64,6 @@ class bigint {
 // The rest of the operators do not need to be friends.
 // Make the comparisons inline for efficiency.
 //
-
 bigint pow (const bigint& base, const bigint& exponent);
 
 inline bool operator!= (const bigint &left, const bigint &right) {
@@ -84,4 +80,3 @@ inline bool operator>= (const bigint &left, const bigint &right) {
 }
 
 #endif
-

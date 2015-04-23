@@ -1,11 +1,8 @@
-// $Id: debug.h,v 1.1 2014-04-08 19:04:03-07 - - $
-
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
 #include <string>
 #include <vector>
-using namespace std;
 
 //
 // debug -
@@ -18,18 +15,16 @@ using namespace std;
 //    Used by the DEBUGF macro to check to see if a flag has been set.
 //    Not to be called by user code.
 //
-
 class debugflags {
    private:
-      static vector<bool> flags;
+      static std::vector<bool> flags;
    public:
-      static void setflags (const string& optflags);
+      static void setflags (const std::string& optflags);
       static bool getflag (char flag);
       static void where (char flag, const char* file, int line,
                          const char* func);
 };
 
-
 //
 // DEBUGF -
 //    Macro which expands into trace code.  First argument is a
@@ -40,7 +35,6 @@ class debugflags {
 //    will print two words and a newline if flag 'u' is  on.
 //    Traces are preceded by filename, line number, and function.
 //
-
 #ifdef NDEBUG
 #define DEBUGF(FLAG,CODE) ;
 #define DEBUGS(FLAG,STMT) ;
@@ -48,7 +42,7 @@ class debugflags {
 #define DEBUGF(FLAG,CODE) { \
            if (debugflags::getflag (FLAG)) { \
               debugflags::where (FLAG, __FILE__, __LINE__, __func__); \
-              cerr << CODE << endl; \
+              std::cerr << CODE << std::endl; \
            } \
         }
 #define DEBUGS(FLAG,STMT) { \
