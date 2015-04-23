@@ -1,5 +1,14 @@
 asg1/yshell
 *.o
 *.dSYM/
-
 *.dep
+test*
+*.log
+*.out
+*.err
+*.status
+mk.build
+mk.tests
+README
+SCORE
+SCORE.pair
