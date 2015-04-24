@@ -1,16 +1,15 @@
 #include <cstdlib>
+
+#include <algorithm>
 #include <exception>
 #include <limits>
 #include <stack>
 #include <stdexcept>
-#include <boost/range/adaptor/reversed.hpp>
 #include <boost/foreach.hpp>
 #include <boost/range/combine.hpp>
 
 #include "bigint.h"
 #include "debug.h"
-
-using boost::adaptors::reverse;
 
 bigint::bigint(long that) {
     bigint(std::to_string(that));
@@ -18,7 +17,9 @@ bigint::bigint(long that) {
 
 bigint::bigint(const std::string& that) {
     this->negative = false;
-    for (char val : reverse(that)) {
+    std::string reversed = that;
+    std::reverse(reversed.begin(), reversed.end());
+    for (char val : reversed) {
         if (val == '_') {
             this->negative = true;
         } else {
@@ -32,7 +33,9 @@ bigint::operator std::string() const {
     if (this->negative) {
         ret += "-";
     }
-    for (char val : reverse(this->big_value)) {
+    bigint::bigvalue_t reversed = this->big_value;
+    std::reverse(reversed.begin(), reversed.end());
+    for (char val : reversed) {
         ret += val;
     }
     return ret;
@@ -102,7 +105,9 @@ bigint::bigvalue_t bigint::do_bigsub(
 }
 
 bigint::bigvalue_t bigint::trim_zeros(bigint::bigvalue_t val) {
-    for (char c : reverse(val)) {
+    bigint::bigvalue_t reversed = val;
+    std::reverse(reversed.begin(), reversed.end());
+    for (char c : reversed) {
         if (c == '0')
             val.pop_back();
         else break;
