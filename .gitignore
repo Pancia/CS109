@@ -1,5 +1,6 @@
 asg1/yshell
 asg2/ydc
+*/test/test_main
 *.o
 *.dSYM/
 *.dep
