@@ -3,7 +3,6 @@ asg2/ydc
 *.o
 *.dSYM/
 *.dep
-test*
 *.log
 *.out
 *.err

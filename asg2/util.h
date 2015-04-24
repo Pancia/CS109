@@ -21,20 +21,20 @@ namespace util {
     //
     class ydc_exn: public std::runtime_error {
         public:
-            explicit ydc_exn (const std::string& what);
+            explicit ydc_exn(const std::string& what);
     };
 
     //
     // octal -
     //    Convert integer to octal string.
     //
-    const std::string octal (long decimal);
+    const std::string octal(long decimal);
 
     //
     // sys_info -
     //    Keep track of execname and exit status.  Must be initialized
     //    as the first thing done inside main.  Main should call:
-    //       sys_info::execname (argv[0]);
+    //       sys_info::execname(argv[0]);
     //    before anything else.
     //
     class sys_info {
@@ -42,9 +42,9 @@ namespace util {
             static std::string execname_;
             static int status_;
         public:
-            static void execname (const std::string& argv0);
+            static void execname(const std::string& argv0);
             static const std::string& execname() {return execname_;}
-            static void status (int status) {status_ = status;}
+            static void status(int status) {status_ = status;}
             static int status() {return status_;}
     };
 

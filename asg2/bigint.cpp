@@ -3,50 +3,120 @@
 #include <limits>
 #include <stack>
 #include <stdexcept>
+#include <boost/range/adaptor/reversed.hpp>
+#include <boost/foreach.hpp>
+#include <boost/range/combine.hpp>
 
 #include "bigint.h"
 #include "debug.h"
 
-bigint::bigint(long that): long_value (that) {
-    DEBUGF('~', this << " -> " << long_value)
+using boost::adaptors::reverse;
+
+bigint::bigint(long that) {
+    bigint(std::to_string(that));
 }
 
 bigint::bigint(const std::string& that) {
-    auto itor = that.cbegin();
-    bool isnegative = false;
-    if (itor != that.cend() and *itor == '_') {
-        isnegative = true;
-        ++itor;
+    this->negative = false;
+    for (char val : reverse(that)) {
+        if (val == '_') {
+            this->negative = true;
+        } else {
+            this->big_value.push_back(val);
+        }
+    };
+}
+
+bigint::operator std::string() const {
+    std::string ret;
+    if (this->negative) {
+        ret += "-";
     }
-    int newval = 0;
-    while (itor != that.end()) {
-        newval = newval * 10 + *itor++ - '0';
+    for (char val : reverse(this->big_value)) {
+        ret += val;
     }
-    long_value = isnegative ? - newval : + newval;
-    DEBUGF('~', this << " -> " << long_value)
+    return ret;
 }
 
 bigint operator+(const bigint& left, const bigint& right) {
-    return left.long_value + right.long_value;
+    DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
+    bigint sum;
+    if (left.negative == right.negative) {
+        sum.big_value = bigint::do_bigadd
+            (left.big_value, right.big_value);
+        sum.negative = left.negative;
+    } else {
+        //else do_bigless -> do_bigsub (big - small)
+        sum.big_value = bigint::do_bigadd
+            (left.big_value, right.big_value);
+        sum.negative = true;
+    }
+    return sum;
 }
 
 bigint operator-(const bigint& left, const bigint& right) {
-    return left.long_value - right.long_value;
+    DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
+    throw std::runtime_error("-2 STUB");
 }
 
 bigint operator+(const bigint& right) {
-    return +right.long_value;
+    DEBUGF('b', "RIGHT:" << right);
+    throw std::runtime_error("+1 STUB");
 }
 
 bigint operator-(const bigint& right) {
-    return -right.long_value;
+    DEBUGF('b', "RIGHT:" << right);
+    throw std::runtime_error("-1 STUB");
+}
+
+bigint::bigvalue_t bigint::do_bigadd(
+        const bigvalue_t& left,
+        const bigvalue_t& right) {
+    bigint::bigvalue_t padded_left = left;
+    bigint::bigvalue_t padded_right = right;
+    if (left.size() < right.size()) {
+        padded_left.resize(right.size(), '0');
+    } else if (right.size() < left.size()) {
+        padded_right.resize(left.size(), '0');
+    }
+    bigvalue_t sum;
+    char l, r; int carry {0};
+    BOOST_FOREACH(boost::tie(l, r),
+            boost::combine(padded_left, padded_right)) {
+        char res = l + r - '0' + carry;
+        carry = 0;
+        if (res - '0' > 9) {
+            res -= 10;
+            carry = 1;
+        }
+        sum.push_back(res);
+    }
+    return bigint::trim_zeros(sum);
+}
+
+bigint::bigvalue_t bigint::do_bigsub(
+        const bigvalue_t& left,
+        const bigvalue_t& right) {
+    (void) left; (void) right;
+    throw std::runtime_error("do_bigsub STUB");
+}
+
+bigint::bigvalue_t bigint::trim_zeros(bigint::bigvalue_t val) {
+    for (char c : reverse(val)) {
+        if (c == '0')
+            val.pop_back();
+        else break;
+    }
+    return val;
 }
 
 long bigint::to_long() const {
-    if (*this <= bigint(std::numeric_limits<long>::min())
-            or *this > bigint(std::numeric_limits<long>::max()))
-        throw std::range_error("bigint__to_long: out of range");
-    return long_value;
+    DEBUGF('b', "bigint::to_long()");
+    throw std::runtime_error("to_long STUB");
+    //if (*this <= bigint(std::numeric_limits<long>::min())
+    //        or *this > bigint(std::numeric_limits<long>::max()))
+    //    throw std::range_error("bigint__to_long: out of range");
+    //return long_value;
 }
 
 bool abs_less(const long& left, const long& right) {
@@ -57,13 +127,13 @@ bool abs_less(const long& left, const long& right) {
 // Multiplication algorithm.
 //
 bigint operator*(const bigint& left, const bigint& right) {
-    return left.long_value * right.long_value;
+    DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
+    throw std::runtime_error("*2 STUB");
 }
 
 //
 // Division algorithm.
 //
-
 void multiply_by_2(bigint::unumber& unumber_value) {
     unumber_value *= 2;
 }
@@ -73,52 +143,59 @@ void divide_by_2(bigint::unumber& unumber_value) {
 }
 
 bigint::quot_rem divide(const bigint& left, const bigint& right) {
-    if (right == 0) throw std::domain_error("divide by 0");
-    using unumber = unsigned long;
-    static unumber zero = 0;
-    if (right == 0) throw std::domain_error("bigint::divide");
-    unumber divisor = right.long_value;
-    unumber quotient = 0;
-    unumber remainder = left.long_value;
-    unumber power_of_2 = 1;
-    while (abs_less(divisor, remainder)) {
-        multiply_by_2(divisor);
-        multiply_by_2(power_of_2);
-    }
-    while (abs_less(zero, power_of_2)) {
-        if (not abs_less(remainder, divisor)) {
-            remainder = remainder - divisor;
-            quotient = quotient + power_of_2;
-        }
-        divide_by_2(divisor);
-        divide_by_2(power_of_2);
-    }
-    return {quotient, remainder};
+    DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
+    throw std::runtime_error("/2 STUB");
+    //if (right == 0)
+    //    throw std::domain_error("divide by 0");
+    //using unumber = bigint::unumber;
+    //static unumber zero = 0;
+    //if (right == 0)
+    //    throw std::domain_error("bigint::divide");
+    //unumber divisor = right;
+    //unumber quotient = 0;
+    //unumber remainder = left;
+    //unumber power_of_2 = 1;
+    //while (abs_less(divisor, remainder)) {
+    //    multiply_by_2(divisor);
+    //    multiply_by_2(power_of_2);
+    //}
+    //while (abs_less(zero, power_of_2)) {
+    //    if (not abs_less(remainder, divisor)) {
+    //        remainder = remainder - divisor;
+    //        quotient = quotient + power_of_2;
+    //    }
+    //    divide_by_2(divisor);
+    //    divide_by_2(power_of_2);
+    //}
+    //return {quotient, remainder};
 }
 
 bigint operator/(const bigint& left, const bigint& right) {
-    return divide (left, right).first;
+    return divide(left, right).first;
 }
 
 bigint operator%(const bigint& left, const bigint& right) {
-    return divide (left, right).second;
+    return divide(left, right).second;
 }
 
 bool operator==(const bigint& left, const bigint& right) {
-    return left.long_value == right.long_value;
+    DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
+    return (left.negative == right.negative)
+        && (left.big_value == right.big_value);
 }
 
 bool operator<(const bigint& left, const bigint& right) {
-    return left.long_value < right.long_value;
+    DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
+    throw std::runtime_error("< STUB");
 }
 
 std::ostream& operator<<(std::ostream& out, const bigint& that) {
-    out << that.long_value;
+    out << std::string(that);
     return out;
 }
 
 bigint pow(const bigint& base, const bigint& exponent) {
-    DEBUGF ('^', "base = " << base << ", exponent = " << exponent);
+    DEBUGF('^', "base = " << base << ", exponent = " << exponent);
     if (base == 0)
         return 0;
     bigint base_copy = base;

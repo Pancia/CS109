@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
                 fn_map::const_iterator fn;
                 switch (token.symbol) {
                     case NUMBER:
-                        operand_stack.push (token.lexinfo);
+                        operand_stack.push(token.lexinfo);
                         break;
                     case OPERATOR:
                         fn = do_functions.find(token.lexinfo);

@@ -20,11 +20,26 @@ ${EXECBIN} : ${OBJECTS}
 %.o : %.cpp
 	${COMPILECPP} -c $<
 
-clean :
-	- rm ${OBJECTS} ${DEPFILE} core ${EXECBIN}.errs
-
-spotless : clean
-	- rm ${EXECBIN}
-
 again :
 	${GMAKE} spotless all
+
+TESTBIN 	= test/test_main
+TESTMAIN 	= test/test_main.cpp
+TESTSRCS 	= test/test_*.h
+
+test: ${TESTBIN}
+	${TESTBIN}
+
+${TESTBIN}: ${TESTMAIN} ${TESTSRCS} ${OBJECTS}
+	${COMPILECPP} -o ${TESTBIN} ${TESTMAIN}\
+		$(filter-out main.o ,${OBJECTS})
+
+clean :
+	-@ rm ${OBJECTS} ${EXECBIN}.dSYM ${TESTBIN}.dSYM\
+		2> /dev/null
+
+spotless : clean
+	-@ rm ${EXECBIN} ${TESTBIN}\
+		2> /dev/null
+
+.PHONY: test

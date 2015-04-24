@@ -22,7 +22,7 @@ class scanner {
         token_t scan();
 };
 
-std::ostream& operator<< (std::ostream&, const terminal_symbol&);
-std::ostream& operator<< (std::ostream&, const token_t&);
+std::ostream& operator<<(std::ostream&, const terminal_symbol&);
+std::ostream& operator<<(std::ostream&, const token_t&);
 
 #endif

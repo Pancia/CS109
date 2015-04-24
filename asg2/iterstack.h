@@ -37,7 +37,7 @@ class iterstack: private std::vector<value_type> {
       using stack_t::size;
       inline const_iterator begin() {return crbegin();}
       inline const_iterator end() {return crend();}
-      inline void push (const value_type& value) {push_back (value);}
+      inline void push (const value_type& value) {push_back(value);}
       inline void pop() {pop_back();}
       inline const value_type& top() const {return back();}
 };
