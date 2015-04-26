@@ -19,6 +19,7 @@ private:
     bigvalue_t big_value;
     static bigvalue_t do_bigadd(const bigvalue_t&, const bigvalue_t&);
     static bigvalue_t do_bigsub(const bigvalue_t&, const bigvalue_t&);
+    static bool do_bigless(const bigvalue_t&, const bigvalue_t&);
     static bigint::bigvalue_t trim_zeros(bigvalue_t val);
 
     using quot_rem = std::pair<bigint,bigint>;
@@ -44,6 +45,9 @@ public:
     //
     bigint(const long);
     bigint(const std::string&);
+
+    // To string helpers
+    static std::string to_string(bigvalue_t);
 
     //
     // Basic add/sub operators.
