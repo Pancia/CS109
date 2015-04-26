@@ -72,7 +72,7 @@ bigint operator +(const bigint& left, const bigint& right) {
 
 bigint operator -(const bigint& left, const bigint& right) {
     DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
-    bigint::bigint sub;
+    bigint sub;
     if (left.negative == right.negative) {
         sub.big_value = bigint::do_bigsub
             (left.big_value, right.big_value);
