@@ -24,11 +24,10 @@ private:
     static bigint::bigvalue_t trim_zeros(bigvalue_t val);
 
     using quot_rem = std::pair<bigint,bigint>;
-    using unumber = unsigned long;
-    friend quot_rem divide (const bigint&, const bigint&);
-    friend void multiply_by_2 (unumber&);
-    friend void divide_by_2 (unumber&);
+    friend quot_rem divide(const bigint&, const bigint&);
 public:
+    static bigint::bigvalue_t multiply_by_2(bigint::bigvalue_t& val);
+    static bigint::bigvalue_t divide_by_2(bigint::bigvalue_t& val);
     operator std::string() const;
 
     //

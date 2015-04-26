@@ -193,10 +193,6 @@ bool bigint::do_bigless(
     return true;
 }
 
-bool abs_less(const long& left, const long& right) {
-    return left < right;
-}
-
 //
 // Multiplication algorithm.
 //
@@ -229,40 +225,68 @@ bigint::bigvalue_t bigint::do_bigmul(
 //
 // Division algorithm.
 //
-void multiply_by_2(bigint::unumber& unumber_value) {
-    unumber_value *= 2;
+bigint::bigvalue_t bigint::multiply_by_2(bigint::bigvalue_t& val) {
+    val = do_bigmul(val, bigint::bigvalue_t{'2'});
+    return val;
 }
 
-void divide_by_2(bigint::unumber& unumber_value) {
-    unumber_value /= 2;
+bigint::bigvalue_t bigint::divide_by_2(bigvalue_t& val) {
+    bigvalue_t tmp = val;
+    bigvalue_t size_one {'1'};
+    bigvalue_t size_two {'2'};
+    bigvalue_t quotient {'0'};
+
+    std::cout << "tmp:" << to_string(tmp) << std::endl;
+    for (;;) {
+        tmp = do_bigsub(tmp, size_two);
+        std::cout << ">tmp:" << to_string(tmp) << std::endl;
+        quotient = do_bigadd(quotient, size_one);
+        std::cout << ">qtn:" << to_string(quotient) << std::endl;
+        if (tmp.empty() || tmp == size_one)
+            break;
+    }
+
+    std::cout << "quotient:" << to_string(quotient) << std::endl;
+    val = quotient;
+    return quotient;
 }
 
 bigint::quot_rem divide(const bigint& left, const bigint& right) {
     DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
-    throw std::runtime_error("/2 STUB");
-    //if (right == 0)
-    //    throw std::domain_error("divide by 0");
-    //using unumber = bigint::unumber;
-    //static unumber zero = 0;
-    //if (right == 0)
-    //    throw std::domain_error("bigint::divide");
-    //unumber divisor = right;
-    //unumber quotient = 0;
-    //unumber remainder = left;
-    //unumber power_of_2 = 1;
-    //while (abs_less(divisor, remainder)) {
-    //    multiply_by_2(divisor);
-    //    multiply_by_2(power_of_2);
-    //}
-    //while (abs_less(zero, power_of_2)) {
-    //    if (not abs_less(remainder, divisor)) {
-    //        remainder = remainder - divisor;
-    //        quotient = quotient + power_of_2;
-    //    }
-    //    divide_by_2(divisor);
-    //    divide_by_2(power_of_2);
-    //}
-    //return {quotient, remainder};
+    if (right == bigint{"0"})
+        throw std::domain_error("divide by 0");
+    static bigint zero {"0"};
+    if (right == zero)
+        throw std::domain_error("bigint::divide");
+    bigint divisor = right;
+    std::cout << "divisor: " << divisor << std::endl;
+    bigint quotient {"0"};
+    std::cout << "quotient: " << quotient << std::endl;
+    bigint remainder = left;
+    std::cout << "remainder: " << remainder << std::endl;
+    bigint power_of_2 {"1"};
+    std::cout << "power_of_2: " << power_of_2 << std::endl;
+    while (!bigint::do_bigless(divisor.big_value, remainder.big_value)) {
+        bigint::multiply_by_2(divisor.big_value);
+        bigint::multiply_by_2(power_of_2.big_value);
+        std::cout << "->div: " << divisor << std::endl;
+        std::cout << "->pwr: " << power_of_2 << std::endl;
+    }
+    while (not bigint::do_bigless(zero.big_value, power_of_2.big_value)) {
+        if (bigint::do_bigless(remainder.big_value, divisor.big_value)) {
+            remainder = remainder - divisor;
+            quotient = quotient + power_of_2;
+            std::cout << "-=>rem: " << remainder << std::endl;
+            std::cout << "-=>qnt: " << quotient << std::endl;
+        }
+        std::cout << "=>div: " << divisor << std::endl;
+        std::cout << "=>pwr: " << power_of_2 << std::endl;
+        bigint::divide_by_2(divisor.big_value);
+        bigint::divide_by_2(power_of_2.big_value);
+        std::cout << "+>div: " << divisor << std::endl;
+        std::cout << "+>pwr: " << power_of_2 << std::endl;
+    }
+    return {quotient, remainder};
 }
 
 bigint operator /(const bigint& left, const bigint& right) {
