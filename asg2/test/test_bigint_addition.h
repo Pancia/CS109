@@ -53,6 +53,7 @@ namespace test_bigint_addition {
             REQUIRE((x + y) == expected);
         }
     }
+
     TEST_CASE("2 negative bigints can be added together") {
         SECTION("no carrying") {
             x = {"_12035023"};
@@ -60,12 +61,14 @@ namespace test_bigint_addition {
             expected = {"_47956656"};
             REQUIRE((x + y) == expected);
         }
+
         SECTION("carrying") {
             x = {"_87079860987"};
             y = {"_09709680909"};
             expected = {"_96789541896"};
             REQUIRE((x + y) == expected);
         }
+
         SECTION("different lengths") {
             x = {"_87079860987"};
             y = {    "_7480909"};
