@@ -4,3 +4,4 @@
 #include "test_bigint_addition.h"
 #include "test_bigint_subtraction.h"
 #include "test_bigint_compare.h"
+#include "test_bigint_multiplication.h"

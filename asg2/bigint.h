@@ -19,6 +19,7 @@ private:
     bigvalue_t big_value;
     static bigvalue_t do_bigadd(const bigvalue_t&, const bigvalue_t&);
     static bigvalue_t do_bigsub(const bigvalue_t&, const bigvalue_t&);
+    static bigvalue_t do_bigmul(const bigvalue_t&, const bigvalue_t&);
     static bool do_bigless(const bigvalue_t&, const bigvalue_t&);
     static bigint::bigvalue_t trim_zeros(bigvalue_t val);
 

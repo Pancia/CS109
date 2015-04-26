@@ -202,7 +202,28 @@ bool abs_less(const long& left, const long& right) {
 //
 bigint operator *(const bigint& left, const bigint& right) {
     DEBUGF('b', "LEFT:" << left << "RIGHT:" << right);
-    throw std::runtime_error("*2 STUB");
+    bigint mul;
+    mul.big_value = bigint::do_bigmul(left.big_value, right.big_value);
+    mul.negative = (left.negative == right.negative ? false : true);
+    return mul;
+}
+
+bigint::bigvalue_t bigint::do_bigmul(
+        const bigvalue_t& left,
+        const bigvalue_t& right) {
+    DEBUGF('b', "LEFT:" << to_string(left) << "RIGHT:" << to_string(right));
+    bigvalue_t product(left.size()+right.size(), '0');
+    for (size_t i = 0; i < left.size(); i++) {
+        int c = 0;
+        for (size_t j = 0; j < right.size(); j++) {
+            int d = (product.at(i+j)-'0')
+                + ((left.at(i)-'0')*(right.at(j)-'0')) + c;
+            product[i+j] = (d % 10) + '0';
+            c = d / 10;
+        }
+        product[i + right.size()] = c + '0';
+    }
+    return bigint::trim_zeros(product);
 }
 
 //
