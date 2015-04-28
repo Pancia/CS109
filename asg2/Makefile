@@ -35,8 +35,8 @@ test: ${TESTBIN} blackbox
 ${TESTBIN}: ${TESTMAIN} ${TESTSRCS} ${OBJSNOMAIN}
 	${CPP} -o ${TESTBIN} ${TESTMAIN} ${OBJSNOMAIN}
 
-blackbox:
-	cd test && ./run_bb_tests
+blackbox: ${EXECBIN}
+	- cd test && ./run_bb_tests
 
 clean :
 	-@ rm ${OBJECTS}\

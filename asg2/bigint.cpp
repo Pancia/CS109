@@ -343,7 +343,11 @@ bool operator <(const bigint& left, const bigint& right) {
 }
 
 std::ostream& operator <<(std::ostream& out, const bigint& that) {
-    out << std::string(that);
+    std::string buf = std::string(that);
+    out << buf.substr(0, 69);
+    for (size_t i = 69; i < that.big_value.size(); i += 69) {
+        out << "\\\n" << buf.substr(i, 69);
+    }
     return out;
 }
 
