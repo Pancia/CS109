@@ -31,9 +31,9 @@ autotest:
 test_:
 	- make test
 
-test: test-unittests test-blackbox
+test: test-units test-blackbox
 
-test-unittests: ${TESTBIN}
+test-units: ${TESTBIN}
 	${TESTBIN}
 
 ${TESTBIN}: ${TESTMAIN} ${TESTSRCS} ${OBJSNOMAIN}
@@ -52,4 +52,4 @@ spotless : clean
 		${EXECBIN}.dSYM ${TESTBIN}.dSYM\
 		2> /dev/null
 
-.PHONY: test test_ test-unittests test-blackbox autotest submit
+.PHONY: test test_ test-units test-blackbox autotest submit
