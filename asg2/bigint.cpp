@@ -376,31 +376,3 @@ bigint pow(const bigint& base, const bigint& exponent) {
     DEBUGF('^', "result = " << result);
     return result;
 }
-
-//Exponent algorithm
-//gint pow (const bigint& base, const bigint& exponent) {
-// DEBUGF ('^', "base = " << base << ", exponent = " << exponent);
-// bigint zero = bigint("0");
-// bigint one = bigint("1");
-// zero = zero.zero_clear(zero);
-// if (base == zero){
-//    return zero;
-// }
-// bigint base_copy = base;
-// long expt = exponent.to_long();
-// bigint result = bigint("1");
-// if (expt < 0) {
-//    base_copy = one / base_copy;
-//    expt = - expt;
-// }
-// while (expt > 0) {
-//    if (expt & 1) { //odd
-//       result = result * base_copy;
-//       --expt;
-//    } else { //even
-//       base_copy = base_copy * base_copy;
-//       expt /= 2;
-//    }
-// }
-// DEBUGF ('^', "result = " << result);
-// return result;
