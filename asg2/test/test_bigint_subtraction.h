@@ -38,5 +38,11 @@ namespace test_bigint_subtraction {
             REQUIRE((x - y) == expected);
         }
 
+        SECTION("test3-sub.ydc") {
+            x = {"999999999999999999999"};
+            y = {"88888888888888888888888888888888888888"};
+            expected = {"-88888888888888887888888888888888888889"};
+            REQUIRE((x - y) == expected);
+        }
     }
 }

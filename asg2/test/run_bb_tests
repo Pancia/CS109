@@ -24,7 +24,8 @@ exit_status=0
 for i in $(seq 0 5); do
     diff test$i*.out test$i*.true > test$i.diff
     if [ "$(cat test$i.diff)" ]; then
-        echo "test$i differed!"
+        echo "BB_DIFF: test$i differed!"
+        cat test$i.diff
         exit_status=1
     fi
 done
