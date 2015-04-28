@@ -12,23 +12,22 @@
 //
 class bigint {
     friend std::ostream& operator<< (std::ostream&, const bigint&);
-public:
+private:
     using digit_t = unsigned char;
     using bigvalue_t = std::vector<digit_t>;
-private:
     bool negative;
     bigvalue_t big_value;
+    static bigvalue_t do_bigadd(const bigvalue_t&, const bigvalue_t&);
     static bigvalue_t do_bigsub(const bigvalue_t&, const bigvalue_t&);
     static bigvalue_t do_bigmul(const bigvalue_t&, const bigvalue_t&);
     static bool do_bigless(const bigvalue_t&, const bigvalue_t&);
     static bigint::bigvalue_t trim_zeros(bigvalue_t val);
+    static bigint::bigvalue_t multiply_by_2(bigint::bigvalue_t& val);
+    static bigint::bigvalue_t divide_by_2(bigint::bigvalue_t& val);
 
     using quot_rem = std::pair<bigint,bigint>;
     friend quot_rem divide(const bigint&, const bigint&);
 public:
-    static bigvalue_t do_bigadd(const bigvalue_t&, const bigvalue_t&);
-    static bigint::bigvalue_t multiply_by_2(bigint::bigvalue_t& val);
-    static bigint::bigvalue_t divide_by_2(bigint::bigvalue_t& val);
     operator std::string() const;
 
     //

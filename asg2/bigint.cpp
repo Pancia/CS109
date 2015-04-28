@@ -1,5 +1,5 @@
 #include <cstdlib>
-
+#include <cmath>
 #include <algorithm>
 #include <exception>
 #include <limits>
@@ -97,12 +97,16 @@ bigint operator -(const bigint& left, const bigint& right) {
 
 bigint operator +(const bigint& right) {
     DEBUGF('b', "RIGHT:" << right);
-    throw std::runtime_error("+1 STUB");
+    bigint copy = right;
+    copy.negative = false;
+    return copy;
 }
 
 bigint operator -(const bigint& right) {
     DEBUGF('b', "RIGHT:" << right);
-    throw std::runtime_error("-1 STUB");
+    bigint copy = right;
+    copy.negative = true;
+    return copy;
 }
 
 bigint::bigvalue_t bigint::do_bigadd(
@@ -171,11 +175,17 @@ bigint::bigvalue_t bigint::trim_zeros(bigint::bigvalue_t val) {
 
 long bigint::to_long() const {
     DEBUGF('b', "bigint::to_long()");
-    throw std::runtime_error("to_long STUB");
-    //if (*this <= bigint(std::numeric_limits<long>::min())
-    //        or *this > bigint(std::numeric_limits<long>::max()))
-    //    throw std::range_error("bigint__to_long: out of range");
-    //return long_value;
+    if (*this >= bigint{"2147483647"})
+        throw std::range_error("bigint::to_long: out of range");
+    long long_bigint = 0;
+    for (size_t i = 0; i < this->big_value.size(); i++) {
+        if (this->negative) {
+            long_bigint -= ((this->big_value[i]-'0') * std::pow(10, i));
+        } else {
+            long_bigint += ((this->big_value[i]-'0') * std::pow(10, i));
+        }
+    }
+    return long_bigint;
 }
 
 //
@@ -212,7 +222,8 @@ bigint operator *(const bigint& left, const bigint& right) {
 bigint::bigvalue_t bigint::do_bigmul(
         const bigvalue_t& left,
         const bigvalue_t& right) {
-    DEBUGF('b', "LEFT:" << to_string(left) << "RIGHT:" << to_string(right));
+    DEBUGF('b', "LEFT:" << to_string(left)
+            << "RIGHT:" << to_string(right));
     bigvalue_t product(left.size()+right.size(), '0');
     for (size_t i = 0; i < left.size(); i++) {
         int c = 0;
@@ -264,7 +275,7 @@ bigint::bigvalue_t bigint::divide_by_2(bigvalue_t& val) {
         if (do_bigless(tmp, pow_mid)) {
             tmp = do_bigsub(tmp, pow_mid);
             quotient = do_bigadd(quotient, pow_low);
-        // Otherwise do small sub
+            // Otherwise do small sub
         } else if (do_bigless(tmp, size_one)) {
             tmp = do_bigsub(tmp, size_two);
             quotient = do_bigadd(quotient, size_one);
@@ -286,12 +297,15 @@ bigint::quot_rem divide(const bigint& left, const bigint& right) {
     bigint quotient {"0"};
     bigint remainder = left;
     bigint power_of_2 {"1"};
-    while (not bigint::do_bigless(divisor.big_value, remainder.big_value)) {
+    while (not bigint::do_bigless
+            (divisor.big_value, remainder.big_value)) {
         bigint::multiply_by_2(divisor.big_value);
         bigint::multiply_by_2(power_of_2.big_value);
     }
-    while (not bigint::do_bigless(zero.big_value, power_of_2.big_value)) {
-        if (not bigint::do_bigless(divisor.big_value, remainder.big_value)) {
+    while (not bigint::do_bigless
+            (zero.big_value, power_of_2.big_value)) {
+        if (not bigint::do_bigless
+                (divisor.big_value, remainder.big_value)) {
             remainder = remainder - divisor;
             quotient = quotient + power_of_2;
         }
@@ -335,13 +349,16 @@ std::ostream& operator <<(std::ostream& out, const bigint& that) {
 
 bigint pow(const bigint& base, const bigint& exponent) {
     DEBUGF('^', "base = " << base << ", exponent = " << exponent);
-    if (base == 0)
-        return 0;
+    bigint zero = bigint{""};
+    bigint one = bigint{"1"};
+    if (base == zero)
+        return zero;
     bigint base_copy = base;
     long expt = exponent.to_long();
-    bigint result = 1;
-    if (expt < 0) {
-        base_copy = 1 / base_copy;
+    DEBUGF('^', "expt = " << expt);
+    bigint result = one;
+    if (expt < zero) {
+        base_copy = one / base_copy;
         expt = - expt;
     }
     while (expt > 0) {
@@ -352,7 +369,38 @@ bigint pow(const bigint& base, const bigint& exponent) {
             base_copy = base_copy * base_copy;
             expt /= 2;
         }
+        DEBUGF('^', "expt = " << expt);
+        DEBUGF('^', "result = " << result);
+        DEBUGF('^', "base_copy = " << base_copy);
     }
     DEBUGF('^', "result = " << result);
     return result;
 }
+
+//Exponent algorithm
+//gint pow (const bigint& base, const bigint& exponent) {
+// DEBUGF ('^', "base = " << base << ", exponent = " << exponent);
+// bigint zero = bigint("0");
+// bigint one = bigint("1");
+// zero = zero.zero_clear(zero);
+// if (base == zero){
+//    return zero;
+// }
+// bigint base_copy = base;
+// long expt = exponent.to_long();
+// bigint result = bigint("1");
+// if (expt < 0) {
+//    base_copy = one / base_copy;
+//    expt = - expt;
+// }
+// while (expt > 0) {
+//    if (expt & 1) { //odd
+//       result = result * base_copy;
+//       --expt;
+//    } else { //even
+//       base_copy = base_copy * base_copy;
+//       expt /= 2;
+//    }
+// }
+// DEBUGF ('^', "result = " << result);
+// return result;
