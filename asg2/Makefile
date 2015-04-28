@@ -15,6 +15,9 @@ ${EXECBIN} : ${OBJECTS}
 %.o : %.cpp
 	${CPP} -c $<
 
+submit:
+	submit cmps109-wm.s15 asg2 ${ALLSOURCES}
+
 OBJSNOMAIN  = $(filter-out main.o ,${OBJECTS})
 TESTSRCS 	= test/test_*.h
 TESTMAIN 	= test/test_main.cpp
