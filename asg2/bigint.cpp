@@ -26,8 +26,12 @@ bigint::bigint(const std::string& that) {
     }
 }
 
-bigint::operator  std::string() const {
+bigint::operator std::string() const {
     std::string ret;
+    if (this->big_value.size() == 0) {
+        ret = "0";
+        return ret;
+    }
     if (this->negative) {
         ret += "-";
     }
@@ -106,9 +110,9 @@ bigint::bigvalue_t bigint::do_bigadd(
         const bigvalue_t& right) {
     bigint::bigvalue_t padded_left = left;
     bigint::bigvalue_t padded_right = right;
-    if (left.size() < right.size()) {
+    if (left.size() < right.size()+1) {
         padded_left.resize(right.size(), '0');
-    } else if (right.size() < left.size()) {
+    } else if (right.size() < left.size()+1) {
         padded_right.resize(left.size(), '0');
     }
     bigvalue_t sum; int carry {0};
@@ -123,6 +127,7 @@ bigint::bigvalue_t bigint::do_bigadd(
         }
         sum.push_back(res);
     }
+    sum.push_back(carry + '0');
     return bigint::trim_zeros(sum);
 }
 
@@ -235,18 +240,37 @@ bigint::bigvalue_t bigint::divide_by_2(bigvalue_t& val) {
     bigvalue_t size_one {'1'};
     bigvalue_t size_two {'2'};
     bigvalue_t quotient {'0'};
+    bigvalue_t pow_ten = bigint("1024").big_value;
+    bigvalue_t pow_nine = bigint("512").big_value;
+    bigvalue_t pow_eight = bigint("256").big_value;
 
-    std::cout << "tmp:" << to_string(tmp) << std::endl;
-    for (;;) {
-        tmp = do_bigsub(tmp, size_two);
-        std::cout << ">tmp:" << to_string(tmp) << std::endl;
-        quotient = do_bigadd(quotient, size_one);
-        std::cout << ">qtn:" << to_string(quotient) << std::endl;
-        if (tmp.empty() || tmp == size_one)
-            break;
+    for (;!tmp.empty() && tmp != size_one;) {
+        // Inflate value until pow_big
+        //   is bigger than tmp
+        bigvalue_t pow_big = pow_ten;
+        bigvalue_t pow_mid = pow_nine;
+        bigvalue_t pow_low = pow_eight;
+        while (do_bigless(tmp, pow_big)) {
+            pow_big = trim_zeros(pow_big);
+            pow_mid = trim_zeros(pow_mid);
+            pow_low = trim_zeros(pow_low);
+            pow_big = multiply_by_2(pow_big);
+            pow_mid = multiply_by_2(pow_mid);
+            pow_low = multiply_by_2(pow_low);
+        }
+
+        // If we can subtract tmp by pow_mid
+        //   we can also add to quotient by pow_low
+        if (do_bigless(tmp, pow_mid)) {
+            tmp = do_bigsub(tmp, pow_mid);
+            quotient = do_bigadd(quotient, pow_low);
+        // Otherwise do small sub
+        } else if (do_bigless(tmp, size_one)) {
+            tmp = do_bigsub(tmp, size_two);
+            quotient = do_bigadd(quotient, size_one);
+        }
     }
 
-    std::cout << "quotient:" << to_string(quotient) << std::endl;
     val = quotient;
     return quotient;
 }
@@ -259,32 +283,24 @@ bigint::quot_rem divide(const bigint& left, const bigint& right) {
     if (right == zero)
         throw std::domain_error("bigint::divide");
     bigint divisor = right;
-    std::cout << "divisor: " << divisor << std::endl;
     bigint quotient {"0"};
-    std::cout << "quotient: " << quotient << std::endl;
     bigint remainder = left;
-    std::cout << "remainder: " << remainder << std::endl;
     bigint power_of_2 {"1"};
-    std::cout << "power_of_2: " << power_of_2 << std::endl;
-    while (!bigint::do_bigless(divisor.big_value, remainder.big_value)) {
+    while (not bigint::do_bigless(divisor.big_value, remainder.big_value)) {
         bigint::multiply_by_2(divisor.big_value);
         bigint::multiply_by_2(power_of_2.big_value);
-        std::cout << "->div: " << divisor << std::endl;
-        std::cout << "->pwr: " << power_of_2 << std::endl;
     }
     while (not bigint::do_bigless(zero.big_value, power_of_2.big_value)) {
-        if (bigint::do_bigless(remainder.big_value, divisor.big_value)) {
+        if (not bigint::do_bigless(divisor.big_value, remainder.big_value)) {
             remainder = remainder - divisor;
             quotient = quotient + power_of_2;
-            std::cout << "-=>rem: " << remainder << std::endl;
-            std::cout << "-=>qnt: " << quotient << std::endl;
         }
-        std::cout << "=>div: " << divisor << std::endl;
-        std::cout << "=>pwr: " << power_of_2 << std::endl;
         bigint::divide_by_2(divisor.big_value);
         bigint::divide_by_2(power_of_2.big_value);
-        std::cout << "+>div: " << divisor << std::endl;
-        std::cout << "+>pwr: " << power_of_2 << std::endl;
+    }
+    if (remainder == right) {
+        quotient = quotient + bigint{"1"};
+        remainder = remainder - right;
     }
     return {quotient, remainder};
 }
