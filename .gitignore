@@ -8,6 +8,7 @@ asg2/ydc
 *.out
 *.err
 *.status
+*.diff
 mk.build
 mk.tests
 README

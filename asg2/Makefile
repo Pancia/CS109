@@ -29,11 +29,14 @@ autotest:
 test_: ${TESTBIN}
 	- ${TESTBIN}
 
-test: ${TESTBIN}
+test: ${TESTBIN} blackbox
 	${TESTBIN}
 
 ${TESTBIN}: ${TESTMAIN} ${TESTSRCS} ${OBJSNOMAIN}
 	${CPP} -o ${TESTBIN} ${TESTMAIN} ${OBJSNOMAIN}
+
+blackbox:
+	cd test && ./run_bb_tests
 
 clean :
 	-@ rm ${OBJECTS}\
