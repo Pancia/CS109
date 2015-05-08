@@ -1,0 +1,10 @@
+#!/bin/sh
+BIN=../keyvalue
+${BIN} <test1.in >run1.stdin 2>&1
+${BIN} <test2.in >run2.stdin 2>&1
+${BIN} test1.in >run3.files 2>&1
+${BIN} test2.in >run4.files 2>&1
+${BIN} test3.in >run5.files 2>&1
+${BIN} test*in >run6.files 2>&1
+${BIN} /no/such no//file/either >run7.nofiles 2>&1
+valgrind keyvalue test*.in >valgrind.out 2>&1

@@ -1,61 +1,52 @@
-# $Id: Makefile,v 1.10 2015-01-30 14:30:57-08 - - $
-
-# By default, gmake sets the variable ${CXX}=g++ on a Linux system.
-# To use Sun Studio C++ (CC), set the variable CXX=CC, either on
-# the command line when calling make, or in an environment variable.
-
-MKFILE      = Makefile
-DEPFILE     = ${MKFILE}.dep
-NOINCL      = ci clean spotless
-NEEDINCL    = ${filter ${NOINCL}, ${MAKECMDGOALS}}
-GMAKE       = ${MAKE} --no-print-directory
-
-COMPILECPP  = g++ -g -O0 -Wall -Wextra -std=gnu++11
-MAKEDEPCPP  = g++ -MM
-
+CPP  		= g++ -g -O0 -Wall -Wextra -std=gnu++11
 CPPHEADER   = listmap.h trace.h util.h xless.h xpair.h
 TEMPLATES   = listmap.tcc util.tcc
 CPPSOURCE   = trace.cpp util.cpp main.cpp
 ALLCPPSRC   = ${CPPHEADER} ${TEMPLATES} ${CPPSOURCE}
 OBJECTS     = ${CPPSOURCE:.cpp=.o}
 EXECBIN     = keyvalue
-OTHERS      = ${MKFILE}
+OTHERS      = Makefile README
 ALLSOURCES  = ${ALLCPPSRC} ${OTHERS}
-LISTING     = Listing.ps
 
-all : ${EXECBIN}
+all: ${EXECBIN}
 
-${EXECBIN} : ${OBJECTS}
-	${COMPILECPP} -o $@ ${OBJECTS}
+${EXECBIN}: ${OBJECTS}
+	${CPP} -o $@ ${OBJECTS}
 
-%.o : %.cpp
-	${COMPILECPP} -c $<
+%.o: %.cpp
+	${CPP} -c $<
 
-ci : ${ALLSOURCES}
-	- checksource ${ALLSOURCES}
-	cid + ${ALLSOURCES}
+submit:
+	submit cmps109-wm.s15 asg3 ${ALLSOURCES}
 
-lis : ${ALLSOURCES}
-	mkpspdf ${LISTING} ${ALLSOURCES} ${DEPFILE}
+# - TESTING
+OBJSNOMAIN 		= $(filter-out main.o ,${OBJECTS})
+TESTSRCS		= test/test_*.h
+TESTMAIN		= test/test_main.cpp
+TESTBIN			= test/test_main
 
-clean :
-	- rm ${OBJECTS} ${DEPFILE} core
+autotest:
+	nodemon --exec "make test" --ext cpp,h,tcc
 
-spotless : clean
-	- rm ${EXECBIN} ${LISTING} ${LISTING:.ps=.pdf}
+test: all test-units test-blackbox
 
-dep : ${ALLCPPSRC}
-	@ echo "# ${DEPFILE} created `LC_TIME=C date`" >${DEPFILE}
-	${MAKEDEPCPP} ${CPPSOURCE} >>${DEPFILE}
+test-units: ${TESTBIN}
+	chmod u+x ${TESTBIN}
+	${TESTBIN}
 
-${DEPFILE} :
-	@ touch ${DEPFILE}
-	${GMAKE} dep
+${TESTBIN}: ${TESTMAIN} ${TESTSRCS} ${OBJSNOMAIN}
+	${CPP} -o ${TESTBIN} ${TESTMAIN} ${OBJSNOMAIN}
 
-again :
-	${GMAKE} spotless dep ci all lis
+test-blackbox: ${EXECBIN}
+	- cd test && ./run_bb_tests
 
-ifeq (${NEEDINCL}, )
-include ${DEPFILE}
-endif
+# - CLEANING
+clean:
+	-@ rm ${OBJECTS} 2> /dev/null
 
+spotless: clean
+	-@ rm ${EXECBIN} ${TESTBIN}\
+		${EXECBIN}.dSYM ${TESTBIN}.dSYM\
+		2> /dev/null
+
+.PHONY: test test-units test-blackbox autotest submit
