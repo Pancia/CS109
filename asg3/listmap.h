@@ -70,9 +70,9 @@ class listmap<Key,Value,Less>::iterator {
 // listmap::node::node (link*, link*, const value_type&)
 //
 template <typename Key, typename Value, class Less>
-listmap<Key,Value,Less>::node::node (node* next, node* prev,
+listmap<Key,Value,Less>::node::node(node* next, node* prev,
                                      const value_type& value):
-            link (next, prev), value (value) {
+            link(next, prev), value(value) {
 }
 
 //
@@ -94,13 +94,13 @@ listmap<Key,Value,Less>::~listmap() {
 //
 template <typename Key, typename Value, class Less>
 typename listmap<Key,Value,Less>::iterator
-listmap<Key,Value,Less>::insert (const value_type& pair) {
+listmap<Key,Value,Less>::insert(const value_type& pair) {
     TRACE ('l', &pair << "->" << pair);
     node *new_node = new node(nullptr, nullptr, pair);
     if (empty()) {
         begin().where->next = new_node;
         begin().where->prev = nullptr;
-        new_node->next = anchor_.prev;
+        new_node->next = end().where;
     } else {
         for (auto it = begin(); it != end(); ++it) {
             if (pair.first == it.where->value.first) {
@@ -108,11 +108,8 @@ listmap<Key,Value,Less>::insert (const value_type& pair) {
                 return it;
             }
         }
-        //begin.prev = new_node
         begin().where->prev = new_node;
-        //new_node.next = begin
         new_node->next = begin().where;
-        //begin = new_node
         anchor_.next = new_node;
     }
     return end();
@@ -123,30 +120,23 @@ listmap<Key,Value,Less>::insert (const value_type& pair) {
 //
 template <typename Key, typename Value, class Less>
 typename listmap<Key,Value,Less>::iterator
-listmap<Key,Value,Less>::find (const key_type& that) {
+listmap<Key,Value,Less>::find(const key_type& that) {
     TRACE ('l', that);
-
-    for (auto it = begin(); it != end(); ++it) {
-        if (it.where->value.first == that) {
-            return it;
+    if (empty()) {
+        cout << "The listmap is empty!" << endl;
+    } else {
+        for (auto it = begin(); it != end(); ++it) {
+            if (it.where->value.first == that) {
+                return it;
+            }
         }
     }
 
     return end();
 }
 
-//
-// iterator listmap::erase (iterator position)
-//
 template <typename Key, typename Value, class Less>
-typename listmap<Key,Value,Less>::iterator
-listmap<Key,Value,Less>::erase (iterator position) {
-    TRACE ('l', &*position);
-    return iterator();
-}
-
-template <typename Key, typename Value, class Less>
-void listmap<Key,Value,Less>::print () {
+void listmap<Key,Value,Less>::print() {
     if (empty()) {
         cout << "The listmap is empty!" << endl;
     }
@@ -170,10 +160,60 @@ void listmap<Key,Value,Less>::print(const mapped_type& val) {
 }
 
 //
+// iterator listmap::erase (iterator position)
+//
+template <typename Key, typename Value, class Less>
+typename listmap<Key,Value,Less>::iterator
+listmap<Key,Value,Less>::erase(iterator position) {
+    TRACE ('l', &*position);
+    //TODO
+    iterator it;
+    for (it = begin(); it != end(); ++it) {
+        if (it == position) {
+            // Only elem
+            if (it == begin() && it.where->next == end().where) {
+                cout << "√ - ONLY" << endl;
+                node *tmp = it.where;
+                anchor_.next = end().where;
+                delete tmp;
+                // First elem
+            } else if (it == begin()) {
+                cout << "FIRST" << endl;
+                node *tmp = begin().where;
+                begin().where->next->prev = nullptr;
+                begin() = begin().where->next;
+                delete tmp;
+                // Last elem
+            } else if (it == end()) {
+                cout << "LAST" << endl;
+                node *tmp = end().where;
+                end().where->prev->next = nullptr;
+                end() = end().where->prev;
+                delete tmp;
+                // Middle
+            } else {
+                cout << "MID" << endl;
+                it.erase();
+            }
+            break;
+        }
+    }
+    return it;
+}
+
+//
 /////////////////////////////////////////////////////////////////
 // Operations on listmap::iterator.
 /////////////////////////////////////////////////////////////////
 //
+
+template <typename Key, typename Value, class Less>
+void listmap<Key,Value,Less>::iterator::erase() {
+    node *tmp = where;
+    where->next->prev = where->prev;
+    where->prev->next = where->next;
+    delete tmp;
+}
 
 //
 // listmap::value_type& listmap::iterator::operator*()
@@ -181,7 +221,7 @@ void listmap<Key,Value,Less>::print(const mapped_type& val) {
 template <typename Key, typename Value, class Less>
 typename listmap<Key,Value,Less>::value_type&
 listmap<Key,Value,Less>::iterator::operator*() {
-    TRACE ('l', where);
+    TRACE('l', where);
     return where->value;
 }
 
@@ -191,7 +231,7 @@ listmap<Key,Value,Less>::iterator::operator*() {
 template <typename Key, typename Value, class Less>
 typename listmap<Key,Value,Less>::value_type*
 listmap<Key,Value,Less>::iterator::operator->() {
-    TRACE ('l', where);
+    TRACE('l', where);
     return &(where->value);
 }
 
@@ -212,7 +252,7 @@ listmap<Key,Value,Less>::iterator::operator++() {
 template <typename Key, typename Value, class Less>
 typename listmap<Key,Value,Less>::iterator&
 listmap<Key,Value,Less>::iterator::operator--() {
-    TRACE ('l', where);
+    TRACE('l', where);
     where = where->prev;
     return *this;
 }
