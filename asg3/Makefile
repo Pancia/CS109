@@ -1,6 +1,6 @@
 CPP  		= g++ -g -O0 -Wall -Wextra -std=gnu++11
 CPPHEADER   = listmap.h trace.h util.h xless.h xpair.h
-TEMPLATES   = listmap.tcc util.tcc
+TEMPLATES   = util.tcc
 CPPSOURCE   = trace.cpp util.cpp main.cpp
 ALLCPPSRC   = ${CPPHEADER} ${TEMPLATES} ${CPPSOURCE}
 OBJECTS     = ${CPPSOURCE:.cpp=.o}
