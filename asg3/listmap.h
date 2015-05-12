@@ -166,33 +166,28 @@ template <typename Key, typename Value, class Less>
 typename listmap<Key,Value,Less>::iterator
 listmap<Key,Value,Less>::erase(iterator position) {
     TRACE ('l', &*position);
-    //TODO
     iterator it;
     for (it = begin(); it != end(); ++it) {
         if (it == position) {
-            // Only elem
             if (it == begin() && it.where->next == end().where) {
                 cout << "√ - ONLY" << endl;
                 node *tmp = it.where;
                 anchor_.next = end().where;
                 delete tmp;
-                // First elem
             } else if (it == begin()) {
-                cout << "FIRST" << endl;
+                cout << "√ - FIRST" << endl;
                 node *tmp = begin().where;
-                begin().where->next->prev = nullptr;
-                begin() = begin().where->next;
+                anchor_.next->next->prev = nullptr;
+                anchor_.next = begin().where->next;
                 delete tmp;
-                // Last elem
-            } else if (it == end()) {
-                cout << "LAST" << endl;
-                node *tmp = end().where;
-                end().where->prev->next = nullptr;
-                end() = end().where->prev;
+            } else if (it.where->next == end().where) {
+                cout << "√ - LAST" << endl;
+                node *tmp = it.where;
+                tmp->prev->next = end().where;
+                tmp->prev = nullptr;
                 delete tmp;
-                // Middle
             } else {
-                cout << "MID" << endl;
+                cout << "√ - MID" << endl;
                 it.erase();
             }
             break;
