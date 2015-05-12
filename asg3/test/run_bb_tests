@@ -1,10 +1,27 @@
 #!/bin/sh
 BIN=../keyvalue
-${BIN} <test1.in >run1.stdin 2>&1
-${BIN} <test2.in >run2.stdin 2>&1
-${BIN} test1.in >run3.files 2>&1
-${BIN} test2.in >run4.files 2>&1
-${BIN} test3.in >run5.files 2>&1
-${BIN} test*in >run6.files 2>&1
-${BIN} /no/such no//file/either >run7.nofiles 2>&1
+TRUE=./pkeyvalue.perl
+
+${BIN} <test1.in >run1.stdin.out 2>&1
+${TRUE} <test1.in >run1.stdin.true 2>&1
+diff run1.stdin.out run1.stdin.true > run1.stdin.diff
+${BIN} <test2.in >run2.stdin.out 2>&1
+${TRUE} <test2.in >run2.stdin.true 2>&1
+diff run2.stdin.out run2.stdin.true > run2.stdin.diff
+${BIN} test1.in >run3.files.out 2>&1
+${TRUE} test1.in >run3.files.true 2>&1
+diff run3.files.out run3.files.true > run3.files.diff
+${BIN} test2.in >run4.files.out 2>&1
+${TRUE} test2.in >run4.files.true 2>&1
+diff run4.files.out run4.files.true > run4.files.diff
+${BIN} test3.in >run5.files.out 2>&1
+${TRUE} test3.in >run5.files.true 2>&1
+diff run5.files.out run5.files.true > run5.files.diff
+${BIN} test*in >run6.files.out 2>&1
+${TRUE} test*in >run6.files.true 2>&1
+diff run6.files.out run6.files.true > run6.files.diff
+${BIN} /no/such no//file/either >run7.nofiles.out 2>&1
+${TRUE} /no/such no//file/either >run7.nofiles.true 2>&1
+diff run7.nofiles.out run7.nofiles.true > run7.nofiles.diff
+
 valgrind keyvalue test*.in >valgrind.out 2>&1
