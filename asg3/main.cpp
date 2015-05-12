@@ -36,10 +36,9 @@ void parse_line(string line, str_str_map& map) {
     if (eq_pos == -1) {
         if (line.find_first_of("#") != 0) {
             if (map.find(line) != map.end()) {
-                cout << "PRINTING VAL FOR KEY: " << line << endl;
                 cout << *map.find(line) << endl;
             } else {
-                cout << "KEY '" << line << "' NOT FOUND" << endl;
+                cout << line << ": key not found" << endl;
             }
         }
         return;
@@ -49,16 +48,12 @@ void parse_line(string line, str_str_map& map) {
     auto pair = str_str_pair(key, val);
     cout << pair << endl;
     if (!key.empty() && val.empty()) {
-        cout << "ERASING VAL FOR KEY: " << key << endl;
         map.erase(map.find(key));
     } else if (!key.empty() && !val.empty()) {
-        cout << "INSERTING" << endl;
         map.insert(pair);
     } else if (key.empty() && val.empty()) {
-        cout << "PRINTING ALL" << endl;
         map.print();
     } else if (key.empty() && !val.empty()) {
-        cout << "PRINTING KEYS FOR VAL: " << val << endl;
         map.print(val);
     }
 }
@@ -73,27 +68,29 @@ int main(int argc, char** argv) {
     if (argc == 1) {
         while (cin) {
             getline(cin, line);
+            if (line == "") { continue; }
             cout << "-: " << ++linenr
                 << ": " << line << endl;
             parse_line(line, map);
         }
     } else {
-        for (int i = 0; i < argc; ++i) {
+        for (int i = 1; i < argc; ++i) {
             ifstream file (argv[i]);
             if (file.is_open()) {
                 while (getline(file, line)) {
                     cout << argv[i] << ": " << ++linenr
                         << ": " << line
                         << endl;
+                    if (line == "") { continue; }
                     parse_line(line, map);
                 }
                 file.close();
+                linenr = 0;
             } else {
                 cout << "Unable to open file: " << argv[i] << endl;
             }
         }
     }
 
-    cout << "EXIT_SUCCESS" << endl;
     return EXIT_SUCCESS;
 }

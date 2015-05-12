@@ -123,12 +123,11 @@ typename listmap<Key,Value,Less>::iterator
 listmap<Key,Value,Less>::find(const key_type& that) {
     TRACE ('l', that);
     if (empty()) {
-        cout << "The listmap is empty!" << endl;
-    } else {
-        for (auto it = begin(); it != end(); ++it) {
-            if (it.where->value.first == that) {
-                return it;
-            }
+        return end();
+    }
+    for (auto it = begin(); it != end(); ++it) {
+        if (it.where->value.first == that) {
+            return it;
         }
     }
 
@@ -138,23 +137,23 @@ listmap<Key,Value,Less>::find(const key_type& that) {
 template <typename Key, typename Value, class Less>
 void listmap<Key,Value,Less>::print() {
     if (empty()) {
-        cout << "The listmap is empty!" << endl;
+        return;
     }
 
     for (auto it : *this) {
-        cout << "PRINT: " << it << endl;
+        cout << it << endl;
     }
 }
 
 template <typename Key, typename Value, class Less>
 void listmap<Key,Value,Less>::print(const mapped_type& val) {
     if (empty()) {
-        cout << "The listmap is empty!" << endl;
+        return;
     }
 
     for (auto it : *this) {
         if (val == it.second) {
-            cout << "PRINT: " << it << endl;
+            cout << it << endl;
         }
     }
 }
@@ -170,24 +169,20 @@ listmap<Key,Value,Less>::erase(iterator position) {
     for (it = begin(); it != end(); ++it) {
         if (it == position) {
             if (it == begin() && it.where->next == end().where) {
-                cout << "√ - ONLY" << endl;
                 node *tmp = it.where;
                 anchor_.next = end().where;
                 delete tmp;
             } else if (it == begin()) {
-                cout << "√ - FIRST" << endl;
                 node *tmp = begin().where;
                 anchor_.next->next->prev = nullptr;
                 anchor_.next = begin().where->next;
                 delete tmp;
             } else if (it.where->next == end().where) {
-                cout << "√ - LAST" << endl;
                 node *tmp = it.where;
                 tmp->prev->next = end().where;
                 tmp->prev = nullptr;
                 delete tmp;
             } else {
-                cout << "√ - MID" << endl;
                 it.erase();
             }
             break;

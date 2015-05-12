@@ -10,7 +10,7 @@ ALLSOURCES  = ${ALLCPPSRC} ${OTHERS}
 
 all: ${EXECBIN}
 
-${EXECBIN}: ${OBJECTS}
+${EXECBIN}: ${OBJECTS} ${CPPHEADER}
 	${CPP} -o $@ ${OBJECTS}
 
 %.o: %.cpp
@@ -20,29 +20,15 @@ submit:
 	submit cmps109-wm.s15 asg3 ${ALLSOURCES}
 
 # - TESTING
-OBJSNOMAIN 		= $(filter-out main.o ,${OBJECTS})
-TESTSRCS		= test/test_*.h
-TESTMAIN		= test/test_main.cpp
-TESTBIN			= test/test_main
-
 autotest:
 	nodemon --exec "make test" --ext cpp,h,tcc
 
-test: all test-units test-blackbox
-
-test-units: ${TESTBIN}
-	chmod u+x ${TESTBIN}
-	${TESTBIN}
-
-${TESTBIN}: ${TESTMAIN} ${TESTSRCS} ${OBJSNOMAIN}
-	${CPP} -o ${TESTBIN} ${TESTMAIN} ${OBJSNOMAIN}
-
-test-blackbox: ${EXECBIN}
+test: all ${EXECBIN}
 	- cd test && ./run_bb_tests
 
 # - CLEANING
 clean:
-	-@ rm ${OBJECTS} 2> /dev/null
+	-@ rm ${OBJECTS} ./test/*.out* 2> /dev/null
 
 spotless: clean
 	-@ rm ${EXECBIN} ${TESTBIN}\
