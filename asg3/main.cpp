@@ -46,10 +46,11 @@ void parse_line(string line, str_str_map& map) {
     string key = trim(line.substr(0, eq_pos));
     string val = trim(line.substr(eq_pos+1, line.size()));
     auto pair = str_str_pair(key, val);
-    cout << pair << endl;
     if (!key.empty() && val.empty()) {
+        cout << pair << endl;
         map.erase(map.find(key));
     } else if (!key.empty() && !val.empty()) {
+        cout << pair << endl;
         map.insert(pair);
     } else if (key.empty() && val.empty()) {
         map.print();
@@ -89,7 +90,7 @@ int main(int argc, char** argv) {
             } else {
                 cout << sys_info::get_execname()
                     << ": " << argv[i]
-                    << " No such file or directory" << endl;
+                    << ": No such file or directory" << endl;
             }
         }
     }
