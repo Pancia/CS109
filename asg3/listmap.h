@@ -102,15 +102,28 @@ listmap<Key,Value,Less>::insert(const value_type& pair) {
         begin().where->prev = nullptr;
         new_node->next = end().where;
     } else {
-        for (auto it = begin(); it != end(); ++it) {
+        iterator it;
+        for (it = begin(); it.where->next != end().where; ++it) {
             if (pair.first == it.where->value.first) {
                 it.where->value.second = pair.second;
                 return it;
+            } else if (less(pair.first, it.where->value.first)) {
+                if (it == begin().where) {
+                    new_node->next = it.where;
+                    it.where->prev = new_node;
+                    anchor_.next = new_node;
+                } else {
+                    new_node->next = it.where;
+                    new_node->prev = it.where->prev;
+                    it.where->prev->next = new_node;
+                    it.where->prev = new_node;
+                }
+                return it;
             }
         }
-        begin().where->prev = new_node;
-        new_node->next = begin().where;
-        anchor_.next = new_node;
+        new_node->next = end().where;
+        it.where->next = new_node;
+        new_node->prev = it.where;
     }
     return end();
 }
@@ -121,10 +134,8 @@ listmap<Key,Value,Less>::insert(const value_type& pair) {
 template <typename Key, typename Value, class Less>
 typename listmap<Key,Value,Less>::iterator
 listmap<Key,Value,Less>::find(const key_type& that) {
-    TRACE ('l', that);
-    if (empty()) {
-        return end();
-    }
+    if (empty()) { return end(); }
+
     for (auto it = begin(); it != end(); ++it) {
         if (it.where->value.first == that) {
             return it;
@@ -136,9 +147,7 @@ listmap<Key,Value,Less>::find(const key_type& that) {
 
 template <typename Key, typename Value, class Less>
 void listmap<Key,Value,Less>::print() {
-    if (empty()) {
-        return;
-    }
+    if (empty()) { return; }
 
     for (auto it : *this) {
         cout << it << endl;
@@ -147,9 +156,7 @@ void listmap<Key,Value,Less>::print() {
 
 template <typename Key, typename Value, class Less>
 void listmap<Key,Value,Less>::print(const mapped_type& val) {
-    if (empty()) {
-        return;
-    }
+    if (empty()) { return; }
 
     for (auto it : *this) {
         if (val == it.second) {

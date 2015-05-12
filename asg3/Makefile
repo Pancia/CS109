@@ -28,7 +28,7 @@ test: all ${EXECBIN}
 
 # - CLEANING
 clean:
-	-@ rm ${OBJECTS} ./test/*.out* 2> /dev/null
+	-@ rm ${OBJECTS} ./test/*.out* ./test/*.diff 2> /dev/null
 
 spotless: clean
 	-@ rm ${EXECBIN} ${TESTBIN}\

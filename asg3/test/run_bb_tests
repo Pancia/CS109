@@ -24,4 +24,4 @@ ${BIN} /no/such no//file/either >run7.nofiles.out 2>&1
 ${TRUE} /no/such no//file/either >run7.nofiles.true 2>&1
 diff run7.nofiles.out run7.nofiles.true > run7.nofiles.diff
 
-valgrind keyvalue test*.in >valgrind.out 2>&1
+valgrind ${BIN} test*.in >valgrind.out 2>&1

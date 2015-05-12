@@ -87,7 +87,9 @@ int main(int argc, char** argv) {
                 file.close();
                 linenr = 0;
             } else {
-                cout << "Unable to open file: " << argv[i] << endl;
+                cout << sys_info::get_execname()
+                    << ": " << argv[i]
+                    << " No such file or directory" << endl;
             }
         }
     }
