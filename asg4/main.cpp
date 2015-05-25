@@ -36,7 +36,7 @@ void parsefile (const string& infilename, istream& infile) {
             if (words.size() == 0 or words.front()[0] == '#') continue;
             DEBUGF ('m', words);
             interp.interpret (words);
-        }catch (runtime_error error) {
+        } catch (runtime_error error) {
             complain() << infilename << ":" << linenr << ": "
                 << error.what() << endl;
         }
