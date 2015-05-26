@@ -1,3 +1,4 @@
+#include <math.h>
 #include <typeinfo>
 #include <unordered_map>
 using namespace std;
@@ -41,17 +42,18 @@ text::text(void* glut_bitmap_font, const string& textdata):
 
 ellipse::ellipse(GLfloat width, GLfloat height):
     dimension({width, height}) {
-        DEBUGF('c', this);
+        DEBUGF('c', this << "(" << width << "," << height << ")");
     }
 
 circle::circle(GLfloat diameter): ellipse(diameter, diameter) {
-    DEBUGF('c', this);
+    DEBUGF('c', this << "(" << diameter << ")");
 }
 
 polygon::polygon(const vertex_list& vertices): vertices(vertices) {
     DEBUGF('c', this);
 }
 
+//TODO use polygon constructor with vertices
 rectangle::rectangle(GLfloat w, GLfloat h):
     polygon({}), width(w), height(h)  {
         DEBUGF('c', this << "(" << width << "," << height << ")");
@@ -69,15 +71,34 @@ void ellipse::draw(const vertex& center, const rgbcolor& color) const {
     DEBUGF('d', this << "(" << center << "," << color << ")");
 }
 
+void circle::draw(const vertex& center, const rgbcolor& color) const {
+    glBegin(GL_LINE_LOOP);
+    for(int ii = 0; ii < 12; ii++) {
+        float theta = 2.0f * 3.1415926f * float(ii)
+            / 12.0;
+
+        cout << "DIMENSION CIRCLE DRAW" << dimension << endl;
+        float x = dimension.xpos * cosf(theta);
+        float y = dimension.ypos * sinf(theta);
+
+        glVertex2f(x + center.xpos, y + center.ypos);
+
+    }
+    glEnd();
+}
+
 void polygon::draw(const vertex& center, const rgbcolor& color) const {
     DEBUGF('d', this << "(" << center << "," << color << ")");
 }
 
 void rectangle::draw(const vertex& center, const rgbcolor& color)const {
     DEBUGF('d', "CENTER: " << center << ", COLOR " << color);
-    glBegin(GL_LINE);
+
+    glLineWidth(5.0f);
+    glBegin(GL_LINE_LOOP);
 
     glColor3ubv(color.ubvec);
+
     GLfloat x0 = center.xpos - (width / 2);
     GLfloat y0 = center.ypos + (height / 2);
     DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);

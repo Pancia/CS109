@@ -87,6 +87,7 @@ public:
 
 class circle: public ellipse {
 public:
+    virtual void draw(const vertex&, const rgbcolor&) const override;
     circle(GLfloat diameter);
 };
 

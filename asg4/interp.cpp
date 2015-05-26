@@ -60,10 +60,10 @@ void interpreter::do_draw (param begin, param end) {
     if (itor == objmap.end()) {
         throw runtime_error (name + ": no such shape");
     }
-    vertex where {from_string<GLfloat> (begin[1]),
-        from_string<GLfloat> (begin[2])};
-    rgbcolor color {begin[3]};
-    itor->second->draw (where, color);
+    vertex where {from_string<GLfloat> (begin[2]),
+        from_string<GLfloat> (begin[3])};
+    rgbcolor color {begin[1]};
+    window::push_back(object(itor->second, where, color));
 }
 
 shape_ptr interpreter::make_shape (param begin, param end) {
@@ -89,7 +89,8 @@ shape_ptr interpreter::make_ellipse (param begin, param end) {
 
 shape_ptr interpreter::make_circle (param begin, param end) {
     DEBUGF ('f', range (begin, end));
-    return make_shared<circle> (GLfloat());
+    GLfloat diameter = stof(begin[0]);
+    return make_shared<circle> (diameter);
 }
 
 shape_ptr interpreter::make_polygon (param begin, param end) {
@@ -106,6 +107,7 @@ shape_ptr interpreter::make_rectangle (param begin, param end) {
 
 shape_ptr interpreter::make_square (param begin, param end) {
     DEBUGF ('f', range (begin, end));
-    return make_shared<square> (GLfloat());
+    GLfloat side = stof(begin[0]);
+    return make_shared<square> (side);
 }
 

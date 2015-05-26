@@ -1,5 +1,3 @@
-// $Id: graphics.h,v 1.9 2014-05-15 16:42:55-07 - - $
-
 #ifndef __GRAPHICS_H__
 #define __GRAPHICS_H__
 
@@ -18,6 +16,8 @@ class object {
       vertex center;
       rgbcolor color;
    public:
+      object(const shared_ptr<shape> s, vertex& v, rgbcolor& c):
+          pshape(s), center(v), color(c) {};
       // Default copiers, movers, dtor all OK.
       void draw() { pshape->draw (center, color); }
       void move (GLfloat delta_x, GLfloat delta_y) {
@@ -41,7 +41,6 @@ class mouse {
       void draw();
 };
 
-
 class window {
       friend class mouse;
    private:
