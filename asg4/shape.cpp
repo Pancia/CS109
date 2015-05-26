@@ -50,18 +50,86 @@ circle::circle(GLfloat diameter): ellipse(diameter, diameter) {
 }
 
 polygon::polygon(const vertex_list& vertices): vertices(vertices) {
-    DEBUGF('c', this);
+    DEBUGF('c', this << "[" << vertices << "]");
 }
 
-//TODO use polygon constructor with vertices
-rectangle::rectangle(GLfloat w, GLfloat h):
-    polygon({}), width(w), height(h)  {
-        DEBUGF('c', this << "(" << width << "," << height << ")");
+rectangle::rectangle(GLfloat width, GLfloat height):
+    polygon(([] (GLfloat w, GLfloat h) -> vertex_list {
+        vertex_list vs;
+
+        //top-left
+        GLfloat x0 = - (w / 2);
+        GLfloat y0 = (h / 2);
+        DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
+        vs.push_back(vertex{x0, y0});
+
+        //top-right
+        GLfloat x1 = (w / 2);
+        GLfloat y1 = (h / 2);
+        DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
+        vs.push_back(vertex{x1, y1});
+
+        //btm-right
+        GLfloat x2 = (w / 2);
+        GLfloat y2 = - (h / 2);
+        DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
+        vs.push_back(vertex{x2, y2});
+
+        //btm-let
+        GLfloat x3 = - (w / 2);
+        GLfloat y3 = - (h / 2);
+        DEBUGF('d', "x3:" << x3 << ", y3:" <<  y3);
+        vs.push_back(vertex{x3, y3});
+
+        return vs;
+    })(width, height)) {
     }
 
-square::square(GLfloat width): rectangle(width, width) {
-    DEBUGF('c', this);
-}
+square::square(GLfloat width):
+    rectangle(width, width) {
+    }
+
+diamond::diamond(const GLfloat width, const GLfloat height):
+    polygon(([] (GLfloat w, GLfloat h) -> vertex_list {
+        vertex_list vs;
+
+        //top
+        GLfloat x0 = 0;
+        GLfloat y0 = (h / 2);
+        DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
+        vs.push_back(vertex{x0, y0});
+
+        //left
+        GLfloat x2 = - (w / 2);
+        GLfloat y2 = 0;
+        DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
+        vs.push_back(vertex{x2, y2});
+
+        //btm
+        GLfloat x1 = 0;
+        GLfloat y1 = - (h / 2);
+        DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
+        vs.push_back(vertex{x1, y1});
+
+        //right
+        GLfloat x3 = (w / 2);
+        GLfloat y3 = 0;
+        DEBUGF('d', "x3:" << x3 << ", y3:" <<  y3);
+        vs.push_back(vertex{x3, y3});
+
+        return vs;
+    })(width, height)) {
+    }
+
+triangle::triangle(const vertex_list& vertices):
+    polygon(vertices) {
+    }
+
+//===================== DRAWING =====================
+//===================== DRAWING =====================
+//===================== DRAWING =====================
+//===================== DRAWING =====================
+//===================== DRAWING =====================
 
 void text::draw(const vertex& center, const rgbcolor& color) const {
     DEBUGF('d', this << "(" << center << "," << color << ")");
@@ -69,56 +137,37 @@ void text::draw(const vertex& center, const rgbcolor& color) const {
 
 void ellipse::draw(const vertex& center, const rgbcolor& color) const {
     DEBUGF('d', this << "(" << center << "," << color << ")");
-}
-
-void circle::draw(const vertex& center, const rgbcolor& color) const {
     glBegin(GL_LINE_LOOP);
-    for(int ii = 0; ii < 12; ii++) {
-        float theta = 2.0f * 3.1415926f * float(ii)
-            / 12.0;
+    glColor3ubv(color.ubvec);
+    int sides = 36;
+    for(int i = 0; i < sides; i++) {
+        float theta = 2.0f * M_PI * float(i) 
+            / float(sides);
 
-        cout << "DIMENSION CIRCLE DRAW" << dimension << endl;
         float x = dimension.xpos * cosf(theta);
         float y = dimension.ypos * sinf(theta);
 
-        glVertex2f(x + center.xpos, y + center.ypos);
-
+        glVertex2f(x + center.xpos,
+                y + center.ypos);
     }
     glEnd();
 }
 
-void polygon::draw(const vertex& center, const rgbcolor& color) const {
+void circle::draw(const vertex& center, const rgbcolor& color) const {
     DEBUGF('d', this << "(" << center << "," << color << ")");
+    return ellipse::draw(center, color);
 }
 
-void rectangle::draw(const vertex& center, const rgbcolor& color)const {
-    DEBUGF('d', "CENTER: " << center << ", COLOR " << color);
-
+void polygon::draw(const vertex& center, const rgbcolor& color) const {
+    DEBUGF('d', this << "(" << center << "," << color << ")");
     glLineWidth(5.0f);
     glBegin(GL_LINE_LOOP);
-
     glColor3ubv(color.ubvec);
-
-    GLfloat x0 = center.xpos - (width / 2);
-    GLfloat y0 = center.ypos + (height / 2);
-    DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
-    glVertex2f(x0, y0);
-
-    GLfloat x1 = center.xpos + (width / 2);
-    GLfloat y1 = center.ypos + (height / 2);
-    DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
-    glVertex2f(x1, y1);
-
-    GLfloat x2 = center.xpos + (width / 2);
-    GLfloat y2 = center.ypos - (height / 2);
-    DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
-    glVertex2f(x2, y2);
-
-    GLfloat x3 = center.xpos - (width / 2);
-    GLfloat y3 = center.ypos - (height / 2);
-    DEBUGF('d', "x3:" << x3 << ", y3:" <<  y3);
-    glVertex2f(x3, y3);
-
+    for (vertex v : vertices) {
+        cout << "V: " << v.xpos << "," << v.ypos << endl;
+        glVertex2f(v.xpos + center.xpos,
+                v.ypos + center.ypos);
+    }
     glEnd();
 }
 
@@ -144,7 +193,7 @@ void polygon::show(ostream& out) const {
 
 void rectangle::show(ostream& out) const {
     shape::show(out);
-    out << "{w:" << width << ",h:" << height << "}";
+    polygon::show(out);
 }
 
 ostream& operator<<(ostream& out, const shape& obj) {

@@ -24,6 +24,8 @@ interpreter::factory_map {
     {"polygon"  , &interpreter::make_polygon  },
     {"rectangle", &interpreter::make_rectangle},
     {"square"   , &interpreter::make_square   },
+    {"diamond"  , &interpreter::make_diamond  },
+    {"triangle" , &interpreter::make_triangle },
 };
 
 interpreter::shape_map interpreter::objmap;
@@ -84,7 +86,9 @@ shape_ptr interpreter::make_text (param begin, param end) {
 
 shape_ptr interpreter::make_ellipse (param begin, param end) {
     DEBUGF ('f', range (begin, end));
-    return make_shared<ellipse> (GLfloat(), GLfloat());
+    GLfloat width = stof(begin[0]);
+    GLfloat height = stof(begin[1]);
+    return make_shared<ellipse> (width, height);
 }
 
 shape_ptr interpreter::make_circle (param begin, param end) {
@@ -95,7 +99,16 @@ shape_ptr interpreter::make_circle (param begin, param end) {
 
 shape_ptr interpreter::make_polygon (param begin, param end) {
     DEBUGF ('f', range (begin, end));
-    return make_shared<polygon> (vertex_list());
+    vertex_list vertices;
+    for (auto it = begin; it != end;) {
+        string x = *it++;
+        string y = *it++;
+        vertex v {GLfloat(stof(x)), GLfloat(stof(y))}; 
+        cout << "vertex.xpos: " << v.xpos << endl;
+        cout << "vertex.ypos: " << v.ypos << endl;
+        vertices.push_back(v);
+    }
+    return make_shared<polygon> (vertices);
 }
 
 shape_ptr interpreter::make_rectangle (param begin, param end) {
@@ -109,5 +122,26 @@ shape_ptr interpreter::make_square (param begin, param end) {
     DEBUGF ('f', range (begin, end));
     GLfloat side = stof(begin[0]);
     return make_shared<square> (side);
+}
+
+shape_ptr interpreter::make_diamond (param begin, param end) {
+    DEBUGF ('f', range (begin, end));
+    GLfloat width = stof(begin[0]);
+    GLfloat height = stof(begin[1]);
+    return make_shared<diamond> (width, height);
+}
+
+shape_ptr interpreter::make_triangle (param begin, param end) {
+    DEBUGF ('f', range (begin, end));
+    vertex_list vertices;
+    for (auto it = begin; it != end;) {
+        string x = *it++;
+        string y = *it++;
+        vertex v {GLfloat(stof(x)), GLfloat(stof(y))}; 
+        cout << "vertex.xpos: " << v.xpos << endl;
+        cout << "vertex.ypos: " << v.ypos << endl;
+        vertices.push_back(v);
+    }
+    return make_shared<triangle> (vertices);
 }
 

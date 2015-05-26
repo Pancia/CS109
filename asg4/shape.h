@@ -107,11 +107,8 @@ public:
 // Classes rectangle, square, etc.
 //
 class rectangle: public polygon {
-private:
-    GLfloat width, height;
 public:
     rectangle(GLfloat width, GLfloat height);
-    virtual void draw(const vertex&, const rgbcolor&) const override;
     virtual void show(ostream&) const override;
 };
 
@@ -123,6 +120,11 @@ public:
 class diamond: public polygon {
 public:
     diamond(const GLfloat width, const GLfloat height);
+};
+
+class triangle: public polygon {
+public:
+    triangle(const vertex_list& vertices);
 };
 
 ostream& operator<<(ostream& out, const shape&);
