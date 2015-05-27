@@ -1,21 +1,19 @@
-# $Id: Makefile,v 1.13 2015-02-19 16:48:00-08 - - $
-
 MKFILE      = Makefile
-COMPILECPP  = g++ -g -O0 -Wall -Wextra -std=gnu++11
+COMPILECPP  = g++ -g -O0 -Wall -Wextra -std=gnu++11 -Wno-reorder
 
 MODULES     = debug graphics interp rgbcolor shape util
 CPPHEADER   = ${MODULES:=.h}
 CPPSOURCE   = ${MODULES:=.cpp} main.cpp
 TEMPLATES   = util.tcc
 GENFILES    = colors.cppgen
-OTHERS      = ${MKFILE} README
+OTHERS      = ${MKFILE} README mk-colors.perl
 ALLSOURCES  = ${CPPHEADER} ${TEMPLATES} ${CPPSOURCE} ${OTHERS}
 EXECBIN     = gdraw
 OBJECTS     = ${CPPSOURCE:.cpp=.o}
 LINKLIBS    = -lGL -lGLU -lglut -lm
 
-CLASS       = cmps109-wm.w15
-PROJECT     = asg3
+CLASS       = cmps109-wm.s15
+PROJECT     = asg4
 
 all : ${EXECBIN}
 	- checksource ${ALLSOURCES}

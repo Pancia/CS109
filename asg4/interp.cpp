@@ -12,8 +12,10 @@ using namespace std;
 
 unordered_map<string,interpreter::interpreterfn>
 interpreter::interp_map {
-    {"define" , &interpreter::do_define },
-    {"draw"   , &interpreter::do_draw   },
+    {"define" , &interpreter::do_define},
+    {"draw"   , &interpreter::do_draw  },
+    {"moveby" , &interpreter::do_moveby},
+    {"border" , &interpreter::do_border},
 };
 
 unordered_map<string,interpreter::factoryfn>
@@ -26,6 +28,9 @@ interpreter::factory_map {
     {"square"   , &interpreter::make_square   },
     {"diamond"  , &interpreter::make_diamond  },
     {"triangle" , &interpreter::make_triangle },
+    {"right_triangle" , &interpreter::make_right_triangle },
+    {"isosceles" , &interpreter::make_isosceles },
+    {"equilateral" , &interpreter::make_equilateral },
 };
 
 interpreter::shape_map interpreter::objmap;
@@ -53,18 +58,29 @@ void interpreter::do_define (param begin, param end) {
     objmap.emplace (name, make_shape (++begin, end));
 }
 
+void interpreter::do_moveby (param begin, param end) {
+    DEBUGF ('f', range (begin, end));
+    window::moveby = atoi(begin[0].c_str());
+}
+
+void interpreter::do_border (param begin, param end) {
+    DEBUGF ('f', range (begin, end));
+    window::border_color = rgbcolor(begin[0]);
+    window::selected_border_thickness = atoi(begin[1].c_str());
+}
+
 void interpreter::do_draw (param begin, param end) {
     DEBUGF ('f', range (begin, end));
     if (end - begin < 3)
         throw runtime_error ("syntax error");
-    string name = begin[0];
+    string name = begin[1];
     shape_map::const_iterator itor = objmap.find (name);
     if (itor == objmap.end()) {
         throw runtime_error (name + ": no such shape");
     }
+    rgbcolor color {begin[0]};
     vertex where {from_string<GLfloat> (begin[2]),
         from_string<GLfloat> (begin[3])};
-    rgbcolor color {begin[1]};
     window::push_back(object(itor->second, where, color));
 }
 
@@ -81,7 +97,13 @@ shape_ptr interpreter::make_shape (param begin, param end) {
 
 shape_ptr interpreter::make_text (param begin, param end) {
     DEBUGF ('f', range (begin, end));
-    return make_shared<text> (nullptr, string());
+    string font = begin[0];
+    ++begin;
+    string words = "";
+    while (begin != end) {
+        words += *begin++ + " ";
+    }
+    return make_shared<text> (font, words);
 }
 
 shape_ptr interpreter::make_ellipse (param begin, param end) {
@@ -145,3 +167,22 @@ shape_ptr interpreter::make_triangle (param begin, param end) {
     return make_shared<triangle> (vertices);
 }
 
+shape_ptr interpreter::make_right_triangle (param begin, param end) {
+    DEBUGF ('f', range (begin, end));
+    GLfloat width = stof(begin[0]);
+    GLfloat height = stof(begin[1]);
+    return make_shared<right_triangle> (width, height);
+}
+
+shape_ptr interpreter::make_isosceles (param begin, param end) {
+    DEBUGF ('f', range (begin, end));
+    GLfloat width = stof(begin[0]);
+    GLfloat height = stof(begin[1]);
+    return make_shared<isosceles> (width, height);
+}
+
+shape_ptr interpreter::make_equilateral (param begin, param end) {
+    DEBUGF ('f', range (begin, end));
+    GLfloat width = stof(begin[0]);
+    return make_shared<equilateral> (width);
+}

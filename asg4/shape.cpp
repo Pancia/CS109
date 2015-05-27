@@ -35,8 +35,8 @@ shape::shape() {
     DEBUGF('c', this);
 }
 
-text::text(void* glut_bitmap_font, const string& textdata):
-    glut_bitmap_font(glut_bitmap_font), textdata(textdata) {
+text::text(const string& font, const string& textdata):
+    glut_bitmap_font(fontcode[font]), textdata(textdata) {
         DEBUGF('c', this);
     }
 
@@ -125,6 +125,89 @@ triangle::triangle(const vertex_list& vertices):
     polygon(vertices) {
     }
 
+right_triangle::right_triangle(const GLfloat width,
+                               const GLfloat height):
+    triangle(([] (const GLfloat w, const GLfloat h) -> vertex_list {
+        vertex_list vs;
+
+        //top
+        DEBUGF('d', "RIGHT_TRIANGLE");
+        GLfloat x0 = - ((2.0/3.0) * w);
+        GLfloat y0 = - ((1.0/3.0) * h);
+        DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
+        vs.push_back(vertex{x0, y0});
+
+        //left
+        GLfloat x2 = ((1.0/3.0) * w);
+        GLfloat y2 = ((2.0/3.0) * h);
+        DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
+        vs.push_back(vertex{x2, y2});
+
+        //btm
+        GLfloat x1 = ((1.0/3.0) * w);
+        GLfloat y1 = - ((1.0/3.0) * h);
+        DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
+        vs.push_back(vertex{x1, y1});
+
+        return vs;
+    })(width, height)) {
+    }
+
+isosceles::isosceles(const GLfloat width,
+                     const GLfloat height):
+    triangle(([] (const GLfloat w, const GLfloat h) -> vertex_list {
+        vertex_list vs;
+
+        //top
+        DEBUGF('d', "ISOSCELES");
+        GLfloat x0 = - (w / 2);
+        GLfloat y0 = - (h / 2);
+        DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
+        vs.push_back(vertex{x0, y0});
+
+        //left
+        GLfloat x2 = 0.0;
+        GLfloat y2 = (h / 2);
+        DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
+        vs.push_back(vertex{x2, y2});
+
+        //btm
+        GLfloat x1 = (w / 2);
+        GLfloat y1 = - (h / 2);
+        DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
+        vs.push_back(vertex{x1, y1});
+
+        return vs;
+    })(width, height)) {
+    }
+
+equilateral::equilateral(const GLfloat width):
+    triangle(([] (const GLfloat w) -> vertex_list {
+        vertex_list vs;
+
+        //top
+        DEBUGF('d', "RIGHT_TRIANGLE");
+        GLfloat x0 = - (w / 2);
+        GLfloat y0 = - (w / 2);
+        DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
+        vs.push_back(vertex{x0, y0});
+
+        //left
+        GLfloat x2 = 0.0;
+        GLfloat y2 = (w / 2);
+        DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
+        vs.push_back(vertex{x2, y2});
+
+        //btm
+        GLfloat x1 = (w / 2);
+        GLfloat y1 = - (w / 2);
+        DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
+        vs.push_back(vertex{x1, y1});
+
+        return vs;
+    })(width)) {
+    }
+
 //===================== DRAWING =====================
 //===================== DRAWING =====================
 //===================== DRAWING =====================
@@ -133,6 +216,20 @@ triangle::triangle(const vertex_list& vertices):
 
 void text::draw(const vertex& center, const rgbcolor& color) const {
     DEBUGF('d', this << "(" << center << "," << color << ")");
+    DEBUGF('d', "TEXT: " << textdata);
+    auto font = glut_bitmap_font;
+    glColor3ubv(color.ubvec);
+
+    GLfloat w = glutBitmapLength(font, (GLubyte*)textdata.c_str());
+    GLfloat h = glutBitmapHeight(font);
+    GLfloat xpos = center.xpos;// - (w / 2.0);
+    GLfloat ypos = center.ypos;// - (h / 4.0);
+
+    DEBUGF('d', this << "(" << xpos << "," << ypos << ")");
+    glRasterPos2f(xpos,ypos);
+
+    for (auto ch : textdata)
+        glutBitmapCharacter(font, ch);
 }
 
 void ellipse::draw(const vertex& center, const rgbcolor& color) const {
@@ -160,7 +257,6 @@ void circle::draw(const vertex& center, const rgbcolor& color) const {
 
 void polygon::draw(const vertex& center, const rgbcolor& color) const {
     DEBUGF('d', this << "(" << center << "," << color << ")");
-    glLineWidth(5.0f);
     glBegin(GL_LINE_LOOP);
     glColor3ubv(color.ubvec);
     for (vertex v : vertices) {

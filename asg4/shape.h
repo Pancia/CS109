@@ -68,7 +68,7 @@ protected:
     // GLUT_BITMAP_TIMES_ROMAN_24
     string textdata;
 public:
-    text(void* glut_bitmap_font, const string& textdata);
+    text(const string& font, const string& textdata);
     virtual void draw(const vertex&, const rgbcolor&) const override;
     virtual void show(ostream&) const override;
 };
@@ -125,6 +125,21 @@ public:
 class triangle: public polygon {
 public:
     triangle(const vertex_list& vertices);
+};
+
+class right_triangle: public triangle {
+public:
+    right_triangle(const GLfloat width, const GLfloat height);
+};
+
+class isosceles: public triangle {
+public:
+    isosceles(const GLfloat width, const GLfloat height);
+};
+
+class equilateral: public triangle {
+public:
+    equilateral(const GLfloat width);
 };
 
 ostream& operator<<(ostream& out, const shape&);

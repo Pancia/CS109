@@ -9,8 +9,17 @@ using namespace std;
 int window::width = 640; // in pixels
 int window::height = 480; // in pixels
 vector<object> window::objects;
-size_t window::selected_obj = 0;
+size_t window::selected_object = 0;
 mouse window::mus;
+int window::moveby = 4;
+GLfloat window::border_thickness = 2.0;
+GLfloat window::selected_border_thickness = 4.0;
+rgbcolor window::border_color = rgbcolor(255, 0, 0); // red
+
+object::object(const shared_ptr<shape> s, vertex& v, rgbcolor& c):
+    pshape(s), center(v), color(c),
+    selected(false), 
+    selected_color(window::border_color) {} 
 
 // Executed when window system signals to shut down.
 void window::close() {
@@ -35,12 +44,33 @@ void window::display() {
     DEBUGF ('g', "window::display");
     glClear (GL_COLOR_BUFFER_BIT);
     cout << "SIZE: " << window::objects.size() << endl;
+    select_object(window::selected_object);
     for (auto& object: window::objects) {
         cout << "OBJ: " << typeid(object).name() << endl;
+        if (object.selected) {
+            glLineWidth(window::selected_border_thickness);
+        } else {
+            glLineWidth(window::border_thickness);
+        }
+        object.maybe_wrap_around();
         object.draw();
     }
     mus.draw();
     glutSwapBuffers();
+}
+
+void object::maybe_wrap_around() {
+    DEBUGF ('g', "object::maybe_wrap_around");
+    if (center.xpos < 0) {
+        center.xpos = window::width;
+    } else if (center.xpos > window::width) {
+        center.xpos = 0;
+    }
+    if (center.ypos < 0) {
+        center.ypos = window::height;
+    } else if (center.ypos > window::height) {
+        center.ypos = 0;
+    }
 }
 
 // Called when window is opened and when resized.
@@ -67,23 +97,33 @@ void window::keyboard (GLubyte key, int x, int y) {
             window::close();
             break;
         case 'H': case 'h':
-            //move_selected_object (
+            move_selected_object (-moveby, 0);
             break;
         case 'J': case 'j':
-            //move_selected_object (
+            move_selected_object (0, -moveby);
             break;
         case 'K': case 'k':
-            //move_selected_object (
+            move_selected_object (0, moveby);
             break;
         case 'L': case 'l':
-            //move_selected_object (
+            move_selected_object (moveby, 0);
             break;
         case 'N': case 'n': case SPACE: case TAB:
+            if (window::selected_object == window::objects.size()-1) {
+                select_object(0);
+            } else {
+                select_object(window::selected_object+1);
+            }
             break;
         case 'P': case 'p': case BS:
+            if (window::selected_object == 0) {
+                select_object(window::objects.size()-1);
+            } else {
+                select_object(window::selected_object-1);
+            }
             break;
         case '0'...'9':
-            //select_object (key - '0');
+            select_object (key - '0');
             break;
         default:
             cerr << (unsigned)key << ": invalid keystroke" << endl;
@@ -92,15 +132,30 @@ void window::keyboard (GLubyte key, int x, int y) {
     glutPostRedisplay();
 }
 
+void window::select_object(size_t obj) {
+    DEBUGF ('g', "window::select_object");
+    if (obj > window::objects.size()-1) {
+        return;
+    }
+    window::objects[window::selected_object].selected = false;
+    window::selected_object = obj;
+    window::objects[window::selected_object].selected = true;
+}
+
+void window::move_selected_object(GLfloat xpos, GLfloat ypos) {
+    DEBUGF ('g', "window::move_selected_object");
+    window::objects[window::selected_object].move(xpos, ypos);
+}
+
 // Executed when a special function key is pressed.
 void window::special (int key, int x, int y) {
     DEBUGF ('g', "key=" << key << ", x=" << x << ", y=" << y);
     window::mus.set (x, y);
     switch (key) {
-        case GLUT_KEY_LEFT: //move_selected_object (-1, 0); break;
-        case GLUT_KEY_DOWN: //move_selected_object (0, -1); break;
-        case GLUT_KEY_UP: //move_selected_object (0, +1); break;
-        case GLUT_KEY_RIGHT: //move_selected_object (+1, 0); break;
+        case GLUT_KEY_LEFT: move_selected_object (-moveby, 0); break;
+        case GLUT_KEY_DOWN: move_selected_object (0, -moveby); break;
+        case GLUT_KEY_UP: move_selected_object (0, moveby); break;
+        case GLUT_KEY_RIGHT: move_selected_object (moveby, 0); break;
         case GLUT_KEY_F1: //select_object (1); break;
         case GLUT_KEY_F2: //select_object (2); break;
         case GLUT_KEY_F3: //select_object (3); break;

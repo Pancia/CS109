@@ -15,15 +15,23 @@ class object {
       shared_ptr<shape> pshape;
       vertex center;
       rgbcolor color;
+      rgbcolor selected_color;
    public:
-      object(const shared_ptr<shape> s, vertex& v, rgbcolor& c):
-          pshape(s), center(v), color(c) {};
+      bool selected;
+      object(const shared_ptr<shape> s, vertex& v, rgbcolor& c);
       // Default copiers, movers, dtor all OK.
-      void draw() { pshape->draw (center, color); }
+      void draw() { 
+          if (selected) {
+              pshape->draw (center, selected_color); 
+          } else {
+              pshape->draw (center, color); 
+          }
+      }
       void move (GLfloat delta_x, GLfloat delta_y) {
          center.xpos += delta_x;
          center.ypos += delta_y;
       }
+      void maybe_wrap_around();
 };
 
 class mouse {
@@ -44,10 +52,8 @@ class mouse {
 class window {
       friend class mouse;
    private:
-      static int width;         // in pixels
-      static int height;        // in pixels
       static vector<object> objects;
-      static size_t selected_obj;
+      static size_t selected_object;
       static mouse mus;
    private:
       static void close();
@@ -59,7 +65,15 @@ class window {
       static void motion (int x, int y);
       static void passivemotion (int x, int y);
       static void mousefn (int button, int state, int x, int y);
+      static void move_selected_object(GLfloat xpos, GLfloat ypos);
+      static void select_object (size_t obj);
    public:
+      static int width;         // in pixels
+      static int height;        // in pixels
+      static int moveby;
+      static GLfloat border_thickness;
+      static GLfloat selected_border_thickness;
+      static rgbcolor border_color;
       static void push_back (const object& obj) {
                   objects.push_back (obj); }
       static void setwidth (int width_) { width = width_; }
