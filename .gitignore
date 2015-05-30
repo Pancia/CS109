@@ -2,6 +2,8 @@ asg1/yshell
 asg2/ydc
 asg3/keyvalue
 asg4/gdraw
+asg5/cix
+asg5/cixd
 */test/test_main
 */test/run*
 catch.hpp
