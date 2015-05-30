@@ -130,20 +130,17 @@ right_triangle::right_triangle(const GLfloat width,
     triangle(([] (const GLfloat w, const GLfloat h) -> vertex_list {
         vertex_list vs;
 
-        //top
         DEBUGF('d', "RIGHT_TRIANGLE");
         GLfloat x0 = - ((2.0/3.0) * w);
         GLfloat y0 = - ((1.0/3.0) * h);
         DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
         vs.push_back(vertex{x0, y0});
 
-        //left
         GLfloat x2 = ((1.0/3.0) * w);
         GLfloat y2 = ((2.0/3.0) * h);
         DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
         vs.push_back(vertex{x2, y2});
 
-        //btm
         GLfloat x1 = ((1.0/3.0) * w);
         GLfloat y1 = - ((1.0/3.0) * h);
         DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
@@ -158,20 +155,17 @@ isosceles::isosceles(const GLfloat width,
     triangle(([] (const GLfloat w, const GLfloat h) -> vertex_list {
         vertex_list vs;
 
-        //top
         DEBUGF('d', "ISOSCELES");
         GLfloat x0 = - (w / 2);
         GLfloat y0 = - (h / 2);
         DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
         vs.push_back(vertex{x0, y0});
 
-        //left
         GLfloat x2 = 0.0;
         GLfloat y2 = (h / 2);
         DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
         vs.push_back(vertex{x2, y2});
 
-        //btm
         GLfloat x1 = (w / 2);
         GLfloat y1 = - (h / 2);
         DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
@@ -185,20 +179,17 @@ equilateral::equilateral(const GLfloat width):
     triangle(([] (const GLfloat w) -> vertex_list {
         vertex_list vs;
 
-        //top
         DEBUGF('d', "RIGHT_TRIANGLE");
         GLfloat x0 = - (w / 2);
         GLfloat y0 = - (w / 2);
         DEBUGF('d', "x0:" << x0 << ", y0:" <<  y0);
         vs.push_back(vertex{x0, y0});
 
-        //left
         GLfloat x2 = 0.0;
         GLfloat y2 = (w / 2);
         DEBUGF('d', "x2:" << x2 << ", y2:" <<  y2);
         vs.push_back(vertex{x2, y2});
 
-        //btm
         GLfloat x1 = (w / 2);
         GLfloat y1 = - (w / 2);
         DEBUGF('d', "x1:" << x1 << ", y1:" <<  y1);
@@ -220,16 +211,14 @@ void text::draw(const vertex& center, const rgbcolor& color) const {
     auto font = glut_bitmap_font;
     glColor3ubv(color.ubvec);
 
-    GLfloat w = glutBitmapLength(font, (GLubyte*)textdata.c_str());
-    GLfloat h = glutBitmapHeight(font);
-    GLfloat xpos = center.xpos;// - (w / 2.0);
-    GLfloat ypos = center.ypos;// - (h / 4.0);
+    GLfloat xpos = center.xpos;
+    GLfloat ypos = center.ypos;
 
     DEBUGF('d', this << "(" << xpos << "," << ypos << ")");
     glRasterPos2f(xpos,ypos);
 
-    for (auto ch : textdata)
-        glutBitmapCharacter(font, ch);
+    for (auto chr : textdata)
+        glutBitmapCharacter(font, chr);
 }
 
 void ellipse::draw(const vertex& center, const rgbcolor& color) const {

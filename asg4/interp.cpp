@@ -73,12 +73,12 @@ void interpreter::do_draw (param begin, param end) {
     DEBUGF ('f', range (begin, end));
     if (end - begin < 3)
         throw runtime_error ("syntax error");
+    rgbcolor color {begin[0]};
     string name = begin[1];
     shape_map::const_iterator itor = objmap.find (name);
     if (itor == objmap.end()) {
         throw runtime_error (name + ": no such shape");
     }
-    rgbcolor color {begin[0]};
     vertex where {from_string<GLfloat> (begin[2]),
         from_string<GLfloat> (begin[3])};
     window::push_back(object(itor->second, where, color));
@@ -98,10 +98,9 @@ shape_ptr interpreter::make_shape (param begin, param end) {
 shape_ptr interpreter::make_text (param begin, param end) {
     DEBUGF ('f', range (begin, end));
     string font = begin[0];
-    ++begin;
     string words = "";
-    while (begin != end) {
-        words += *begin++ + " ";
+    while (++begin != end) {
+        words += *begin + " ";
     }
     return make_shared<text> (font, words);
 }

@@ -19,7 +19,8 @@ rgbcolor window::border_color = rgbcolor(255, 0, 0); // red
 object::object(const shared_ptr<shape> s, vertex& v, rgbcolor& c):
     pshape(s), center(v), color(c),
     selected(false), 
-    selected_color(window::border_color) {} 
+    selected_color(window::border_color) {
+    } 
 
 // Executed when window system signals to shut down.
 void window::close() {
