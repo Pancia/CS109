@@ -16,9 +16,10 @@ logstream log(cout);
 struct cix_exit: public exception {};
 
 unordered_map<string,cix_command> command_map {
-    {"exit", CIX_EXIT},
-    {"help", CIX_HELP},
-    {"ls"  , CIX_LS  },
+    {"exit", CIX_EXIT },
+    {"help", CIX_HELP },
+    {"ls"  , CIX_LS   },
+    {"get" , CIX_GET  },
 };
 
 void cix_help() {
@@ -44,6 +45,26 @@ void cix_ls(client_socket& server) {
     log << "received header " << header << endl;
     if (header.command != CIX_LSOUT) {
         log << "sent CIX_LS, server did not return CIX_LSOUT" << endl;
+        log << "server returned " << header << endl;
+    } else {
+        char buffer[header.nbytes + 1];
+        recv_packet(server, buffer, header.nbytes);
+        log << "received " << header.nbytes << " bytes" << endl;
+        buffer[header.nbytes] = '\0';
+        cout << buffer;
+    }
+}
+
+void cix_get(client_socket& server, string filename) {
+    cix_header header;
+    header.command = CIX_GET;
+    strcpy(header.filename, filename.c_str());
+    log << "sending header " << header << endl;
+    send_packet(server, &header, sizeof header);
+    recv_packet(server, &header, sizeof header);
+    log << "received header " << header << endl;
+    if (header.command != CIX_FILE) {
+        log << "sent CIX_GET, server did not return CIX_FILE" << endl;
         log << "server returned " << header << endl;
     } else {
         char buffer[header.nbytes + 1];
@@ -80,7 +101,9 @@ int main(int argc, char** argv) {
                 throw cix_exit();
             }
             log << "command " << line << endl;
-            const auto& itor = command_map.find(line);
+            string cmd_str = line.substr(0, line.find(" "));
+            string args = line.substr(line.find(" ")+1, line.size());
+            const auto& itor = command_map.find(cmd_str);
             cix_command cmd = itor == command_map.end()
                 ? CIX_ERROR : itor->second;
             switch (cmd) {
@@ -92,6 +115,9 @@ int main(int argc, char** argv) {
                     break;
                 case CIX_LS:
                     cix_ls(server);
+                    break;
+                case CIX_GET:
+                    cix_get(server, args);
                     break;
                 default:
                     log << line << ": invalid command" << endl;

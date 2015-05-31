@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 using namespace std;
@@ -38,6 +39,29 @@ void reply_ls(accepted_socket& client_sock, cix_header& header) {
     log << "sent " << ls_output.size() << " bytes" << endl;
 }
 
+void reply_get(accepted_socket& client_sock, cix_header& header) {
+    ifstream file (header.filename);
+    if (file == NULL) {
+        log << "opening file (" << header.filename << ") failed"
+            << strerror(errno) << endl;
+        header.command = CIX_NAK;
+        header.nbytes = errno;
+        send_packet(client_sock, &header, sizeof header);
+        return;
+    }
+    header.command = CIX_FILE;
+    file.seekg(0, file.end);
+    header.nbytes = file.tellg();
+    file.seekg(0, file.beg);
+    send_packet(client_sock, &header, sizeof header);
+
+    char get_output[header.nbytes];
+    file.read(get_output, header.nbytes);
+    log << "sending header " << header << endl;
+    send_packet(client_sock, get_output, header.nbytes);
+    log << "sent " << header.nbytes << " bytes" << endl;
+}
+
 void run_server(accepted_socket& client_sock) {
     log.execname(log.execname() + "-server");
     log << "connected to " << to_string(client_sock) << endl;
@@ -49,6 +73,9 @@ void run_server(accepted_socket& client_sock) {
             switch (header.command) {
                 case CIX_LS: 
                     reply_ls(client_sock, header);
+                    break;
+                case CIX_GET:
+                    reply_get(client_sock, header);
                     break;
                 default:
                     log << "invalid header from client" << endl;
@@ -98,6 +125,7 @@ void reap_zombies() {
 void signal_handler(int signal) {
     log << "signal_handler: caught " << strsignal(signal) << endl;
     reap_zombies();
+    throw cix_exit();
 }
 
 void signal_action(int signal, void(*handler)(int)) {

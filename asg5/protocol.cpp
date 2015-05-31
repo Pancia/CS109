@@ -1,5 +1,3 @@
-// $Id: protocol.cpp,v 1.2 2015-05-12 18:59:40-07 - - $
-
 #include <unordered_map>
 #include <string>
 using namespace std;
@@ -30,7 +28,7 @@ void send_packet (base_socket& socket,
       if (nbytes < 0) throw socket_sys_error (to_string (socket));
       bufptr += nbytes;
       ntosend -= nbytes;
-   }while (ntosend > 0);
+   } while (ntosend > 0);
 }
 
 void recv_packet (base_socket& socket, void* buffer, size_t bufsize) {
@@ -43,7 +41,7 @@ void recv_packet (base_socket& socket, void* buffer, size_t bufsize) {
                                            + " is closed");
       bufptr += nbytes;
       ntorecv -= nbytes;
-   }while (ntorecv > 0);
+   } while (ntorecv > 0);
 }
 
 ostream& operator<< (ostream& out, const cix_header& header) {
@@ -55,7 +53,6 @@ ostream& operator<< (ostream& out, const cix_header& header) {
    return out;
 }    
 
-
 string get_cix_server_host (const vector<string>& args, size_t index) {
    if (index < args.size()) return args[index];
    char* host = getenv ("CIX_SERVER_HOST");
@@ -73,4 +70,3 @@ in_port_t get_cix_server_port (const vector<string>& args,
    }
    return stoi (port);
 }
-     
