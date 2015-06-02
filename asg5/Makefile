@@ -32,5 +32,8 @@ test: all
 	cd remote && ../cixd 50341 &
 	cd local && ../cix localhost 50341
 
+stop:
+	-@ pkill cix 2> /dev/null
+
 submit:
 	submit cmps109-wm.s15 asg5 ${SOURCES}
