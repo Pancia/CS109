@@ -3,11 +3,14 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-using namespace std;
 
 #include <libgen.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <cstring>
+
+using namespace std;
 
 #include "protocol.h"
 #include "logstream.h"
@@ -109,6 +112,7 @@ void cix_put(client_socket& server, string filename) {
     if (header.command != CIX_ACK) {
         log << "sent CIX_PUT, server did not return CIX_ACK" << endl;
         log << "server returned " << header << endl;
+        log << "with err msg: " << strerror(header.nbytes) << endl;
         return;
     }
     log << "successfully sent file (" << filename << ")" << endl;
@@ -126,11 +130,12 @@ void cix_rm(client_socket& server, string filename) {
     recv_packet(server, &header, sizeof header);
     log << "received header " << header << endl;
     if (header.command != CIX_ACK) {
-        log << "send CIX_RM, server did not return CIX_ACK" << endl;
+        log << "sent CIX_RM, server did not return CIX_ACK" << endl;
         log << "server returned " << header << endl;
+        log << "with err msg: " << strerror(header.nbytes) << endl;
         return;
     }
-    log << "file (" << filename << ") successfully rm'ed" << endl;
+    log << "successfully rm'ed file (" << filename << ")" << endl;
 }
 
 void usage() {

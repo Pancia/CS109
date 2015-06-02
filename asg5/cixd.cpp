@@ -79,9 +79,9 @@ void reply_rm(accepted_socket& client_sock, cix_header& header) {
     int err = unlink(header.filename);
     if (err) {
         log << "failed to delete file (" << header.filename
-            << ") due to an unlink error " << err << endl;
+            << ") due to an unlink error " << strerror(errno) << endl;
         header.command = CIX_NAK;
-        header.nbytes = err;
+        header.nbytes = errno;
         send_packet(client_sock, &header, sizeof header);
         return;
     }
