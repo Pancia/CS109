@@ -27,5 +27,10 @@ clean:
 spotless: clean
 	- rm ${EXECBINS}
 
+test: all
+	- pkill cix
+	cd remote && ../cixd 50341 &
+	cd local && ../cix localhost 50341
+
 submit:
 	submit cmps109-wm.s15 asg5 ${SOURCES}

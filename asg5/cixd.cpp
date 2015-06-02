@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstring>
 using namespace std;
 
 #include <libgen.h>
@@ -50,15 +51,43 @@ void reply_get(accepted_socket& client_sock, cix_header& header) {
         return;
     }
     header.command = CIX_FILE;
-    file.seekg(0, file.end);
-    header.nbytes = file.tellg();
-    file.seekg(0, file.beg);
+    header.nbytes = file_size(header.filename);
     send_packet(client_sock, &header, sizeof header);
 
     char get_output[header.nbytes];
-    file.read(get_output, header.nbytes);
+    load_from_file(header.filename, get_output, header.nbytes);
     log << "sending header " << header << endl;
     send_packet(client_sock, get_output, header.nbytes);
+    log << "sent " << header.nbytes << " bytes" << endl;
+}
+
+void reply_put(accepted_socket& client_sock, cix_header& header) {
+    uint32_t nbytes = header.nbytes;
+    char input[nbytes];
+    recv_packet(client_sock, &input, sizeof input);
+    log << "received " << sizeof input << " nbytes of data" << endl;
+    write_to_file(header.filename, input, nbytes);
+
+    header.command = CIX_ACK;
+    memset(&header.nbytes, 0, sizeof header.nbytes);
+    log << "sending header " << header << endl;
+    send_packet(client_sock, &header, sizeof header);
+    log << "sent " << header.nbytes << " bytes" << endl;
+}
+
+void reply_rm(accepted_socket& client_sock, cix_header& header) {
+    int err = unlink(header.filename);
+    if (err) {
+        log << "failed to delete file (" << header.filename
+            << ") due to an unlink error " << err << endl;
+        header.command = CIX_NAK;
+        header.nbytes = err;
+        send_packet(client_sock, &header, sizeof header);
+        return;
+    }
+    header.command = CIX_ACK;
+    log << "sending header " << header << endl;
+    send_packet(client_sock, &header, sizeof header);
     log << "sent " << header.nbytes << " bytes" << endl;
 }
 
@@ -76,6 +105,12 @@ void run_server(accepted_socket& client_sock) {
                     break;
                 case CIX_GET:
                     reply_get(client_sock, header);
+                    break;
+                case CIX_PUT:
+                    reply_put(client_sock, header);
+                    break;
+                case CIX_RM:
+                    reply_rm(client_sock, header);
                     break;
                 default:
                     log << "invalid header from client" << endl;

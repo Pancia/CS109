@@ -31,5 +31,8 @@ string get_cix_server_host (const vector<string>& args, size_t index);
 in_port_t get_cix_server_port (const vector<string>& args,
         size_t index);
 
-#endif
+void load_from_file(string filename, char* buffer, uint32_t filesize);
+void write_to_file(string filename, char* buffer, uint32_t filesize);
+size_t file_size(string filename);
 
+#endif

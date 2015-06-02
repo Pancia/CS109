@@ -1,5 +1,3 @@
-// $Id: sockets.h,v 1.1 2015-05-12 18:48:40-07 - - $
-
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
@@ -22,7 +20,6 @@ using namespace std;
 // class base_socket:
 // mostly protected and not used by applications
 //
-
 class base_socket {
    private:
       static constexpr size_t MAXRECV = 0xFFFF;
@@ -51,12 +48,10 @@ class base_socket {
       friend string to_string (const base_socket& sock);
 };
 
-
 //
 // class accepted_socket
 // used by server when a client connects
 //
-
 class accepted_socket: public base_socket {
    public:
       accepted_socket() {}
@@ -67,7 +62,6 @@ class accepted_socket: public base_socket {
 // class client_socket
 // used by client application to connect to server
 //
-
 class client_socket: public base_socket {
    public: 
       client_socket (string host, in_port_t port);
@@ -77,7 +71,6 @@ class client_socket: public base_socket {
 // class server_socket
 // single use class by server application
 //
-
 class server_socket: public base_socket {
    public:
       server_socket (in_port_t port);
@@ -86,12 +79,10 @@ class server_socket: public base_socket {
       }
 };
 
-
 //
 // class socket_error
 // base class for throwing socket errors
 //
-
 class socket_error: public runtime_error {
    public:
       explicit socket_error (const string& what): runtime_error(what){}
@@ -101,7 +92,6 @@ class socket_error: public runtime_error {
 // class socket_sys_error
 // subclass to record status of extern int errno variable
 //
-
 class socket_sys_error: public socket_error {
    public:
       int sys_errno;
@@ -114,7 +104,6 @@ class socket_sys_error: public socket_error {
 // class socket_h_error
 // subclass to record status of extern int h_errno variable
 //
-
 class socket_h_error: public socket_error {
    public:
       int host_errno;
@@ -123,12 +112,10 @@ class socket_h_error: public socket_error {
                host_errno(h_errno) {}
 };
 
-
 //
 // class hostinfo
 // information about a host given hostname or IPv4 address
 //
-
 class hostinfo {
    public:
       const string hostname;
@@ -145,4 +132,3 @@ string localhost();
 string to_string (const in_addr& ipv4_addr);
 
 #endif
-
