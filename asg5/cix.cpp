@@ -142,11 +142,17 @@ int main(int argc, char** argv) {
     log.execname(basename(argv[0]));
     log << "starting" << endl;
     vector<string> args(&argv[1], &argv[argc]);
+    string host;
+    in_port_t port;
     if (args.size() > 2) {
         usage();
+    } else if (args.size() == 1) {
+        host = get_cix_server_host(args, 1);//for ignoring args
+        port = get_cix_server_port(args, 0);
+    } else {
+        host = get_cix_server_host(args, 0);
+        port = get_cix_server_port(args, 1);
     }
-    string host = get_cix_server_host(args, 0);
-    in_port_t port = get_cix_server_port(args, 1);
     log << to_string(hostinfo()) << endl;
     try {
         log << "connecting to " << host << " port " << port << endl;
